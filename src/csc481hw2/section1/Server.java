@@ -14,10 +14,8 @@ public class Server {
 	public static CopyOnWriteArrayList<ObjectInputStream> inStream = new CopyOnWriteArrayList<>();
 	public static CopyOnWriteArrayList<ObjectOutputStream> outStream = new CopyOnWriteArrayList<>();
 	
-	private float originalX;
-	private float originalY;
-	private float[] rect;
-	private float[] color;
+	private int windowWidth = 600;
+	private int windowHeight = 400;
 	
 	public static void main(String[] args) {
 		Server m = new Server();
@@ -33,6 +31,10 @@ public class Server {
 		// read from clients
 		while (true) { // never stop looking
 			for (int i = 0; i < inStream.size(); i++) { // iterate over the client streams
+				// initialize the agent
+				if (agents.get(i).getShape() == null) {
+					agents.set(i, new Agent(windowWidth, windowHeight));
+				}
 				int read;
 				try {
 					if (inStream.get(i).available() != 0) { // check if there is anything to read

@@ -18,8 +18,8 @@ public class Client extends PApplet {
 		PApplet.main("csc481hw2.section1.Client");
 	}
 
-	private int windowWidth = 500;
-	private int windowHeight = 500;
+	private int windowWidth = 600;
+	private int windowHeight = 400;
 	
 	public void run(String address) {
 		Socket socket;
