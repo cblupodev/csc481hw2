@@ -1,4 +1,4 @@
-package csc481hw2.section1;
+package csc481hw2.section2;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -15,7 +15,7 @@ public class Client extends PApplet {
 	public static void main(String[] args) {
 		Client c = new Client();
 		c.run(args[0]);
-		PApplet.main("csc481hw2.section1.Client");
+		PApplet.main("csc481hw2.section2.Client");
 	}
 
 	private int windowWidth = 600;

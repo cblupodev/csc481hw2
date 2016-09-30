@@ -1,12 +1,12 @@
-package csc481hw2.section1;
+package csc481hw2.section2;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import csc481hw2.section1.ServerAccept;
-import csc481hw2.section1.Server;
+import csc481hw2.section2.Server;
+import csc481hw2.section2.ServerAccept;
 
 public class Server {
 	
