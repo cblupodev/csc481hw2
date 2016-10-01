@@ -1,4 +1,4 @@
-package csc381hw2.section1;
+package csc481hw2.section1;
 
 import java.util.ArrayList;
 

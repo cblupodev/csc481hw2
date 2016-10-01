@@ -1,6 +1,8 @@
 package csc481hw2.section2;
 
-public class Agent {
+import java.io.Serializable;
+
+public class Character implements Serializable {
 	
 	private float originalX;
 	private float originalY;
@@ -8,23 +10,23 @@ public class Agent {
 	private int[] color;
 	private boolean keyPressed = false;
 	private boolean jumping = false;
-	private float jumpingAngle = 0f;
+	private float jumpingAngle = 180f;
 
-	public Agent(float originalX, float originalY, float[] rect, int[] color) {
+	public Character(float originalX, float originalY, float[] rect, int[] color) {
 		this.setOriginalX(originalX);
 		this.setOriginalY(originalY);
 		this.setShape(rect);
 		this.setColor(color);
 	}
 	
-	public Agent(int windowWidth, int windowHeight) {
+	public Character(int windowWidth, int windowHeight) {
 		this.setShape(new float[] {windowWidth * .1f, windowHeight*.9f - 50, 25, 50});
 		this.setOriginalX(getShape()[0]);
 		this.setOriginalY(getShape()[1]);
 		this.setColor(new int[] {255,255,255}); //white
 	}
 
-	public Agent() {} // empty constructor
+	public Character() {} // empty constructor
 
 	public float[] getShape() {
 		return shape;

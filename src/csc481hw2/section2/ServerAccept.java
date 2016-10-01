@@ -29,7 +29,7 @@ public class ServerAccept extends Thread {
 				Server.inStream.add(ois); 
 			    Server.outStream.add(oos);
 			    
-			    Server.agents.add(new Agent());
+			    Server.agents.add(new Character());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
