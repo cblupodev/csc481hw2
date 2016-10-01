@@ -1,7 +1,10 @@
 package csc481hw2.section2;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -21,13 +24,12 @@ public class ServerAccept extends Thread {
 				client = serverSocket.accept();
 				System.out.println("a client was connected");
 				
-				ObjectOutputStream oos = new ObjectOutputStream(client.getOutputStream());
-				oos.flush(); // stackoverflow said just do it
-				ObjectInputStream  ois = new ObjectInputStream(client.getInputStream());
-			    
+				PrintWriter writer = new PrintWriter(client.getOutputStream(), true);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
+				
 				// pass the object streams to the server
-				Server.inStream.add(ois); 
-			    Server.outStream.add(oos);
+				Server.inStream.add(reader); 
+			    Server.outStream.add(writer);
 			    
 			    Server.agents.add(new Character());
 			}

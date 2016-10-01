@@ -1,8 +1,11 @@
 package csc481hw2.section2;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
 
@@ -16,8 +19,8 @@ public class Client extends PApplet {
 	private static final int PORT = 6789;
 	private Drawing drawing = new Drawing();
 	private Physics physics = new Physics();
-	private ObjectOutputStream oos = null;
-	private ObjectInputStream ois = null;
+	private PrintWriter writer = null;
+	private BufferedReader reader = null;
 	private Socket socket = null;
 	private String address = "";
 	
@@ -49,18 +52,17 @@ public class Client extends PApplet {
 	        type = new TypeToken<Character>() {}.getType();
 			
 			socket = new Socket(address, PORT);
-			oos = new ObjectOutputStream(socket.getOutputStream());
-			oos.flush();
-			ois = new ObjectInputStream(socket.getInputStream());
-			oos.writeInt(5);
-			oos.flush();
+			writer = new PrintWriter(socket.getOutputStream());
+			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			writer.write(5);
+			writer.flush();
 			int timeout = 1;
 			
 			try {
-				System.out.println(ois.available());
-				if (ois.available() != 0) {
+				System.out.println(reader.ready());
+				if (reader.ready()) {
 					timeout = 1;
-					int line = ois.readInt(); // read from the server
+					int line = reader.read(); // read from the server
 					System.out.println("message from server:   " + line);
 				}
 			} catch (IOException e) {
@@ -79,8 +81,8 @@ public class Client extends PApplet {
 		fill(120,50,240);
 		try {
 			//if (ois.available() != 0) {
-			System.out.println(ois.available());
-			String i = ois.readUTF();
+			System.out.println(reader.ready());
+			String i = reader.readLine();
 			System.out.println(i);
 				Character c = gson.fromJson(i,type);
 				System.out.println(c);

@@ -1,8 +1,10 @@
 package csc481hw2.section2;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.util.concurrent.CopyOnWriteArrayList;
 import csc481hw2.section2.Server;
 import csc481hw2.section2.ServerAccept;
@@ -14,8 +16,8 @@ import com.google.gson.reflect.TypeToken;
 public class Server {
 	
 	public static CopyOnWriteArrayList<Character> agents = new CopyOnWriteArrayList<>();
-	public static CopyOnWriteArrayList<ObjectInputStream> inStream = new CopyOnWriteArrayList<>();
-	public static CopyOnWriteArrayList<ObjectOutputStream> outStream = new CopyOnWriteArrayList<>();
+	public static CopyOnWriteArrayList<BufferedReader> inStream = new CopyOnWriteArrayList<>();
+	public static CopyOnWriteArrayList<PrintWriter> outStream = new CopyOnWriteArrayList<>();
 	
 	private int windowWidth = 600;
 	private int windowHeight = 400;
@@ -40,24 +42,19 @@ public class Server {
 					agents.set(i, new Character(windowWidth, windowHeight));
 				}*/
 				int read;
-				try {
-					/*if (inStream.get(i).available() != 0) { // check if there is anything to read
-						read = inStream.get(i).readInt(); // read a simple message from a client
-						System.out.println("message from client:   " + read);
-					}*/
-					//System.out.println("34578");
-					outStream.get(i).reset();
-					Gson gson = new Gson();
-	                Type type = new TypeToken<Character>() {}.getType();
-	                String a = gson.toJson(agents.get(i), type);
-						//outStream.get(i).writeObject(new Integer(6));
-						//outStream.get(i).writeInt(7);
-					
-						outStream.get(i).writeChars(a+"\n"); // write character to the client
-					outStream.get(i).flush();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				/*if (inStream.get(i).available() != 0) { // check if there is anything to read
+					read = inStream.get(i).readInt(); // read a simple message from a client
+					System.out.println("message from client:   " + read);
+				}*/
+				//System.out.println("34578");
+				Gson gson = new Gson();
+				Type type = new TypeToken<Character>() {}.getType();
+				String a = gson.toJson(agents.get(i), type);
+					//outStream.get(i).writeObject(new Integer(6));
+					//outStream.get(i).writeInt(7);
+				
+					outStream.get(i).write(a+"\n"); // write character to the client
+				outStream.get(i).flush();
 			}
 		}
 		
