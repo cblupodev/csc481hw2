@@ -29,6 +29,7 @@ public class Character implements Serializable {
 	}
 	
 	public Character(int windowWidth, int windowHeight) {
+		//this.setShape(new float[] {windowWidth * .7f, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f});
 		this.setShape(new float[] {windowWidth * .1f, windowHeight*.9f - 50, 25, 50});
 		this.setOriginalX(getShape()[0]);
 		this.setOriginalY(getShape()[1]);
@@ -37,11 +38,6 @@ public class Character implements Serializable {
         Type type = new TypeToken<Character>() {}.getType();
 	}
 
-	public Character() {
-		Gson gson = new Gson();
-        Type type = new TypeToken<Character>() {}.getType();
-	} // empty constructor
-	
 /*	// convert the object to json so it can send over the object stream
 	// TODO
 	private Object writeReplace() throws ObjectStreamException {
@@ -61,52 +57,52 @@ public class Character implements Serializable {
 		this.shape = shape;
 	}
 
-	private float getOriginalX() {
+	public float getOriginalX() {
 		return originalX;
 	}
 
-	private void setOriginalX(float originalX) {
+	public void setOriginalX(float originalX) {
 		this.originalX = originalX;
 	}
 
-	private float getOriginalY() {
+	public float getOriginalY() {
 		return originalY;
 	}
 
-	private void setOriginalY(float originalY) {
+	public void setOriginalY(float originalY) {
 		this.originalY = originalY;
 	}
 
-	private int[] getColor() {
+	public int[] getColor() {
 		return color;
 	}
 
-	private void setColor(int[] color) {
+	public void setColor(int[] color) {
 		this.color = color;
 	}
 
-	private boolean isKeyPressed() {
+	public boolean isKeyPressed() {
 		return keyPressed;
 	}
 
-	private void setKeyPressed(boolean keyPressed) {
+	public void setKeyPressed(boolean keyPressed) {
 		this.keyPressed = keyPressed;
 	}
 
-	private boolean isJumping() {
+	public boolean isJumping() {
 		return jumping;
 	}
 
-	private void setJumping(boolean jumping) {
+	public void setJumping(boolean jumping) {
 		this.jumping = jumping;
 	}
 
-	private float getJumpingAngle() {
+	public float getJumpingAngle() {
 		return jumpingAngle;
 	}
 
-	private void setJumpingAngle(float jumpingAngle) {
+	public void setJumpingAngle(float jumpingAngle) {
 		this.jumpingAngle = jumpingAngle;
-	};
+	}
 
 }

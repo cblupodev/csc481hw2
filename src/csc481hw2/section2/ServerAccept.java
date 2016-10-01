@@ -30,8 +30,6 @@ public class ServerAccept extends Thread {
 				// pass the object streams to the server
 				Server.inStream.add(reader); 
 			    Server.outStream.add(writer);
-			    
-			    Server.agents.add(new Character());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
