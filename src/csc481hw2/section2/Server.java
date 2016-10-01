@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import csc481hw2.section2.Server;
 import csc481hw2.section2.ServerAccept;
+
+import java.lang.reflect.Type;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class Server {
 	
@@ -16,6 +19,7 @@ public class Server {
 	
 	private int windowWidth = 600;
 	private int windowHeight = 400;
+	Gson gson;
 	
 	public static void main(String[] args) {
 		Server m = new Server();
@@ -43,9 +47,13 @@ public class Server {
 					}*/
 					//System.out.println("34578");
 					outStream.get(i).reset();
+					Gson gson = new Gson();
+	                Type type = new TypeToken<Character>() {}.getType();
+	                String a = gson.toJson(agents.get(i), type);
 						//outStream.get(i).writeObject(new Integer(6));
 						//outStream.get(i).writeInt(7);
-						outStream.get(i).writeObject(new Character2()); // write character to the client
+					
+						outStream.get(i).writeChars(a+"\n"); // write character to the client
 					outStream.get(i).flush();
 				} catch (IOException e) {
 					e.printStackTrace();

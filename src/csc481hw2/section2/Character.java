@@ -1,6 +1,10 @@
 package csc481hw2.section2;
 
+import java.io.ObjectStreamException;
 import java.io.Serializable;
+import java.lang.reflect.Type;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class Character implements Serializable {
 	
@@ -11,12 +15,17 @@ public class Character implements Serializable {
 	private boolean keyPressed = false;
 	private boolean jumping = false;
 	private float jumpingAngle = 180f;
+	
+	private Gson gson;
+	private Type type;
 
 	public Character(float originalX, float originalY, float[] rect, int[] color) {
 		this.setOriginalX(originalX);
 		this.setOriginalY(originalY);
 		this.setShape(rect);
 		this.setColor(color);
+		Gson gson = new Gson();
+        Type type = new TypeToken<Character>() {}.getType();
 	}
 	
 	public Character(int windowWidth, int windowHeight) {
@@ -24,9 +33,25 @@ public class Character implements Serializable {
 		this.setOriginalX(getShape()[0]);
 		this.setOriginalY(getShape()[1]);
 		this.setColor(new int[] {255,255,255}); //white
+		Gson gson = new Gson();
+        Type type = new TypeToken<Character>() {}.getType();
 	}
 
-	public Character() {} // empty constructor
+	public Character() {
+		Gson gson = new Gson();
+        Type type = new TypeToken<Character>() {}.getType();
+	} // empty constructor
+	
+/*	// convert the object to json so it can send over the object stream
+	// TODO
+	private Object writeReplace() throws ObjectStreamException {
+        return gson.toJson(this, type);
+	}
+	
+	// TODO
+	private Object readResolve() throws ObjectStreamException {
+		return "";
+	}*/
 
 	public float[] getShape() {
 		return shape;

@@ -3,7 +3,11 @@ package csc481hw2.section2;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Type;
 import java.net.Socket;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import processing.core.PApplet;
 
@@ -16,6 +20,9 @@ public class Client extends PApplet {
 	private ObjectInputStream ois = null;
 	private Socket socket = null;
 	private String address = "";
+	
+	private Gson gson;
+	private Type type;
 
 	// start the program
 	public static void main(String[] args) {
@@ -38,6 +45,9 @@ public class Client extends PApplet {
 	
 	public void setup() {		
 		try {
+			gson  = new Gson();
+	        type = new TypeToken<Character>() {}.getType();
+			
 			socket = new Socket(address, PORT);
 			oos = new ObjectOutputStream(socket.getOutputStream());
 			oos.flush();
@@ -70,13 +80,12 @@ public class Client extends PApplet {
 		try {
 			//if (ois.available() != 0) {
 			System.out.println(ois.available());
-				Character2 i = (Character2) ois.readObject();
-				System.out.println(i);
+			String i = ois.readUTF();
+			System.out.println(i);
+				Character c = gson.fromJson(i,type);
+				System.out.println(c);
 			//}
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
