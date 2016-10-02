@@ -8,6 +8,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -46,7 +47,7 @@ public class Client extends PApplet {
 	public void setup() {		
 		try {
 			gson  = new Gson();
-	        type = new TypeToken<Character>() {}.getType();
+	        type = new TypeToken<CopyOnWriteArrayList<Character>>() {}.getType();
 			
 			socket = new Socket(address, PORT);
 			writer = new PrintWriter(socket.getOutputStream());
@@ -100,9 +101,10 @@ public class Client extends PApplet {
 		try {
 			if (reader.ready()) {
 				String i = reader.readLine();
-				Character c = gson.fromJson(i,type);
-				lastCharacter = c;
-				return c;
+				CopyOnWriteArrayList<Character> c = gson.fromJson(i,type);
+				System.out.println(i);
+				//lastCharacter = c;
+				return null;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

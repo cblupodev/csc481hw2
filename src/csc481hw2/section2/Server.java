@@ -42,20 +42,21 @@ public class Server extends PApplet {
 		floatRect = new float[] {windowWidth * .7f, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f};
 		
 		gson = new Gson();
-		type = new TypeToken<Character>() {}.getType();
+		type = new TypeToken<CopyOnWriteArrayList<Character>>() {}.getType();
 		
 		// start the thread that accepts incoming connections
 		Thread t = new Thread(new ServerAccept());
 		t.start();
 		
 		// read from clients
-		int frame = 0;
+		int frame = -1;
 		while (true) { // never stop looking
+			frame++;
 			for (int i = 0; i < inStream.size(); i++) { // iterate over the client streams
 				// initialize the agent if the number of streams and agents aren't the same size
 				if (agents.size() != inStream.size()) {
 					agents.add(i, new Character(windowWidth, windowHeight));
-					writeCharacterToClient(outStream.get(i), agents.get(i));
+					writeCharactersToClient(outStream.get(i));
 				} else {
 					agents.set(i, readInputFromClient(i, agents.get(i), inStream.get(i), outStream.get(i)));
 					
@@ -64,12 +65,11 @@ public class Server extends PApplet {
 					}
 				}
 			}
-			frame++;
 		}
 		
 	}	
-	private void writeCharacterToClient(PrintWriter writer, Character c) {
-		String x = gson.toJson(c, type);
+	private void writeCharactersToClient(PrintWriter writer) {
+		String x = gson.toJson(agents, type);
 		writer.println(x);
 	}
 
@@ -87,7 +87,7 @@ public class Server extends PApplet {
 				c.setJumpingAngle(180);
 				c.getShape()[1] = c.getOriginalY();
 			}
-			writeCharacterToClient(writer, c);
+			writeCharactersToClient(writer);
 		}
 		
 		// check if the agent has collided with the boundaries
@@ -122,7 +122,7 @@ public class Server extends PApplet {
 				}
 				if (keypressed) {
 					agents.set(i, c);
-					writeCharacterToClient(writer, c);
+					writeCharactersToClient(writer);
 					return c;
 				}
 			}
