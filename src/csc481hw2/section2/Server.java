@@ -3,6 +3,7 @@ package csc481hw2.section2;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import csc481hw2.section2.Server;
 import csc481hw2.section2.ServerAccept;
@@ -50,18 +51,25 @@ public class Server extends PApplet {
 		
 		// read from clients
 		int frame = -1;
+		PrintWriter out;
+		Character c;
 		while (true) { // never stop looking
 			frame++;
 			for (int i = 0; i < inStream.size(); i++) { // iterate over the client streams
+				out = outStream.get(i);
 				// initialize the agent if the number of streams and agents aren't the same size
 				if (agents.size() != inStream.size()) {
 					agents.add(i, new Character(windowWidth, windowHeight));
-					writeCharactersToClient(outStream.get(i));
+					c = agents.get(i);
+					Random r = new Random();
+					c.setColor(new int[] {r.nextInt(255), r.nextInt(255), r.nextInt(255)});
+					writeCharactersToClient(out);
 				} else {
-					agents.set(i, readInputFromClient(i, agents.get(i), inStream.get(i), outStream.get(i)));
-					
+					c = agents.get(i);
+					agents.set(i, readInputFromClient(i, c, inStream.get(i), out));
 					if (frame % 10000 == 0) { // need the frames or else it will update everything to quickly before you can read input
-						agents.set(i, updateCharacter(i, agents.get(i), outStream.get(i)));
+						agents.set(i, updateCharacter(i, c, out));
+						writeCharactersToClient(out);
 					}
 				}
 			}
@@ -81,7 +89,7 @@ public class Server extends PApplet {
 			// used that colliding circles example from processing.org
 			float newY = windowHeight*.9f - 50 + (200 * sin(radians(c.getJumpingAngle())));
 			c.getShape()[1] = newY;// set a new y position
-			c.setJumpingAngle(c.getJumpingAngle()+1); // increment the jumping angle
+			c.setJumpingAngle(c.getJumpingAngle()+3); // increment the jumping angle
 			if (c.getJumpingAngle() == 360) { // stop jumping if reached the ground
 				c.setJumping(false);
 				c.setJumpingAngle(180);

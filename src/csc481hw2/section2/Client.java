@@ -23,7 +23,7 @@ public class Client extends PApplet {
 	private BufferedReader reader = null;
 	private Socket socket = null;
 	private String address = "";
-	private Character lastCharacter;
+	private CopyOnWriteArrayList<Character> lastCharacters;
 	
 	private Gson gson;
 	private Type type;
@@ -67,17 +67,20 @@ public class Client extends PApplet {
 		// TODO read and write to the server
 		// read the character object from the server. the server does the updating
 		sendInputToServer();
-		Character c = readCharacterFromServer();
+		CopyOnWriteArrayList<Character> c = readCharactersFromServer();
 		
 		// render -->
 		background(0); // reset the background each frame
 		drawing.drawFill(new int[] {221,221,221}); // light gray
 		drawing.drawRect(foundation);
 		drawing.drawRect(floatRect);
-		drawing.drawFill(new int[] {255,255,255}); // white
-		if (c != null) {
-			drawing.drawRect(c.getShape());
-		}
+		//drawing.drawFill(new int[] {50,50,50}); // light gray
+		try {
+			for (Character i : c) { // draw the characters
+				drawing.drawFill(i.getColor());
+				drawing.drawRect(i.getShape()); 
+			}
+		} catch (NullPointerException e) { }
 	}
 	
 	// send keyboard input to the server so it can update character
@@ -97,19 +100,19 @@ public class Client extends PApplet {
 	}
 
 	// read an updated character from the server
-	private Character readCharacterFromServer() {
+	private CopyOnWriteArrayList<Character> readCharactersFromServer() {
 		try {
 			if (reader.ready()) {
 				String i = reader.readLine();
 				CopyOnWriteArrayList<Character> c = gson.fromJson(i,type);
-				System.out.println(i);
-				//lastCharacter = c;
-				return null;
+				//System.out.println(i);
+				lastCharacters = c;
+				return c;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return lastCharacter;
+		return lastCharacters;
 	}
 	
 	private class Drawing {	// wrapper to easily call rect() from just passing an array
