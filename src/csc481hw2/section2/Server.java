@@ -15,13 +15,13 @@ import com.google.gson.reflect.TypeToken;
 
 public class Server extends PApplet {
 	
-	public static CopyOnWriteArrayList<Character> agents = new CopyOnWriteArrayList<>();
+	public static CopyOnWriteArrayList<Character> characters = new CopyOnWriteArrayList<>();
 	public static CopyOnWriteArrayList<BufferedReader> inStream = new CopyOnWriteArrayList<>();
 	public static CopyOnWriteArrayList<PrintWriter> outStream = new CopyOnWriteArrayList<>();
 	private Physics physics = new Physics();
 	
-	private int windowWidth = 600;
-	private int windowHeight = 400;
+	public static int windowWidth = 600;
+	public static int windowHeight = 400;
 	private float[] topBoundary;
 	private float[] leftBoundary;
 	private float[] rightBoundary;
@@ -43,7 +43,7 @@ public class Server extends PApplet {
 		floatRect = new float[] {windowWidth * .7f, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f};
 		
 		gson = new Gson();
-		type = new TypeToken<CopyOnWriteArrayList<Character>>() {}.getType();
+		type = new TypeToken<ServerClientMessage>() {}.getType();
 		
 		// start the thread that accepts incoming connections
 		Thread t = new Thread(new ServerAccept());
@@ -58,34 +58,50 @@ public class Server extends PApplet {
 			for (int i = 0; i < inStream.size(); i++) { // iterate over the client streams
 				out = outStream.get(i);
 				// initialize the agent if the number of streams and agents aren't the same size
-				if (agents.size() != inStream.size()) {
-					agents.add(i, new Character(windowWidth, windowHeight));
-					c = agents.get(i);
+				if (characters.size() != inStream.size()) { // add a character
+					characters.add(i, new Character(windowWidth, windowHeight));
+					c = characters.get(i);
 					Random r = new Random();
 					c.setColor(new int[] {r.nextInt(255), r.nextInt(255), r.nextInt(255)});
-					writeCharactersToClient(out);
+					writeMessageToClient(out);
 				} else {
-					c = agents.get(i);
-					agents.set(i, readInputFromClient(i, c, inStream.get(i), out));
+					c = characters.get(i);
+					//if (frame % 100 == 0) {
+						characters.set(i, readInputFromClient(i, c, inStream.get(i), out)); // read input from client
+					//}
 					if (frame % 10000 == 0) { // need the frames or else it will update everything to quickly before you can read input
-						agents.set(i, updateCharacter(i, c, out));
-						writeCharactersToClient(out);
+						characters.set(i, updateCharacter(i, c, out));
+						writeMessageToClient(out);
 					}
 				}
 			}
 		}
 		
-	}	
-	private void writeCharactersToClient(PrintWriter writer) {
-		String x = gson.toJson(agents, type);
+	}
+	
+	
+	// write a message to the client
+	// mostly including updated info to draw
+	private ServerClientMessage message = new ServerClientMessage();
+	private float floatingRectRightSide;
+	int i = 0;
+	private void writeMessageToClient(PrintWriter writer) {
+		System.out.println("written to client "+i++);
+		message.characters = characters;
+		message.floatingRectX -= 1; // move the rect left
+		floatRect[0] = message.floatingRectX; // set the float rect for the server version of the shape
+		floatingRectRightSide = message.floatingRectX + message.floatRectWidth;
+		if (floatingRectRightSide < 0 ) { // if goes off the screen to the left
+			message.floatingRectX = windowWidth; // have the rect wrap around on the right side
+		}
+		
+		String x = gson.toJson(message, type);
 		writer.println(x);
 	}
 
-	int j = 0;
 	private Character updateCharacter(int i, Character c, PrintWriter writer) {
 		// redraw the agent if it's in the process of jumping
 		if (c.isJumping()) {
-			
 			// used that colliding circles example from processing.org
 			float newY = windowHeight*.9f - 50 + (200 * sin(radians(c.getJumpingAngle())));
 			c.getShape()[1] = newY;// set a new y position
@@ -95,18 +111,26 @@ public class Server extends PApplet {
 				c.setJumpingAngle(180);
 				c.getShape()[1] = c.getOriginalY();
 			}
-			writeCharactersToClient(writer);
 		}
 		
 		// check if the agent has collided with the boundaries
 		// if it has then reset to its original position
-		if (physics.lineRectWrap(leftBoundary,c.getShape()) || physics.lineRectWrap(rightBoundary,c.getShape()) ||
-				physics.rectRectWrap(floatRect, c.getShape())) {
-			c.setJumping(false);
-			c.getShape()[0] = c.getOriginalX();
-			c.getShape()[1] = c.getOriginalY();
+		if (
+				physics.lineRectWrap(leftBoundary, c.getShape()) || // left boundary 
+				physics.lineRectWrap(rightBoundary,c.getShape()) || // right boundary
+				physics.rectRectWrap(floatRect, c.getShape())       // floating rect
+			) {
+			setToSpawnPoint(c);
 		}
+		
 		return c;	
+	}
+	
+	// set a character to its spawn position and state
+	private void setToSpawnPoint(Character c) {
+		c.setJumping(false);
+		c.getShape()[0] = c.getOriginalX();
+		c.getShape()[1] = c.getOriginalY();
 	}
 
 	private Character readInputFromClient(int i, Character c, BufferedReader r, PrintWriter writer) {
@@ -129,8 +153,7 @@ public class Server extends PApplet {
 					}
 				}
 				if (keypressed) {
-					agents.set(i, c);
-					writeCharactersToClient(writer);
+					characters.set(i, c);
 					return c;
 				}
 			}
