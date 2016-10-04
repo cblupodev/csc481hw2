@@ -3,12 +3,9 @@ package csc481hw2.section2;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -26,7 +23,8 @@ public class Client extends PApplet {
 	private ServerClientMessage lastMessage;
 	
 	private Gson gson;
-	private Type type;
+	private Type ServerClientMessage;
+	private Type ServerClientInitializationMessage;
 
 	// start the program
 	public static void main(String[] args) {
@@ -35,40 +33,51 @@ public class Client extends PApplet {
 		PApplet.main("csc481hw2.section2.Client");
 	}
 
-	private int windowWidth = 600;
-	private int windowHeight = 400;
+	private int windowWidth;
+	private int windowHeight;
 	private float[] rectFoundation1;
 	private float[] rectFoundation2;
 	private float[] rectFloat;
 	
 	public void settings() {
-		size(windowWidth, windowHeight); // set the window dimensions
-	}
-	
-	public void setup() {
 		try {
 			gson  = new Gson();
-	        type = new TypeToken<ServerClientMessage>() {}.getType();
+	        ServerClientMessage = new TypeToken<ServerClientMessage>() {}.getType();
+	        ServerClientInitializationMessage = new TypeToken<ServerClientInitializationMessage>() {}.getType();
 			
 			socket = new Socket(address, PORT);
 			writer = new PrintWriter(socket.getOutputStream());
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			
+			initializeFinalValues();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		rectFoundation1 = new float[] {0, windowHeight*.9f, windowWidth*.75f, windowHeight*.1f};
-		rectFoundation2 = new float[] {windowWidth - (windowWidth*.15f), windowHeight*.9f, windowWidth*.15f, windowHeight*.1f};
-		rectFloat = new float[] {-1000, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f};
+		size(windowWidth, windowHeight); // set the window dimensions
+	}
+	
+	public void setup() {
 		fill(120,50,240);
 	}
 	
-	int j = -1;
+	// this should only read the first message the server ever sends
+	private void initializeFinalValues() {
+		try {
+			while(!reader.ready()); // wait until it is ready
+				String i = reader.readLine();
+				ServerClientInitializationMessage initMessage = gson.fromJson(i,ServerClientInitializationMessage);
+				rectFoundation1 = initMessage.rectFoundation1;
+				rectFoundation2 = initMessage.rectFoundation2;
+				rectFloat = initMessage.rectFloat;
+				windowWidth = initMessage.windowWidth;
+				windowHeight = initMessage.windowHeight;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	int j = 0;
 	public void draw() {
 		j++;
-		// TODO get inputs and send them to the server
-		// TODO read and write to the server
 		// read the character object from the server. the server does the updating
 		ServerClientMessage message;
 		sendInputToServer();
@@ -114,7 +123,7 @@ public class Client extends PApplet {
 		try {
 			if (reader.ready()) {
 				String i = reader.readLine();
-				ServerClientMessage message = gson.fromJson(i,type);
+				ServerClientMessage message = gson.fromJson(i,ServerClientMessage);
 				//System.out.println(i);
 				lastMessage = message;
 				return message;

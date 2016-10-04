@@ -23,14 +23,15 @@ public class Server extends PApplet {
 	
 	public static int windowWidth = 600;
 	public static int windowHeight = 400;
-	private float[] boundaryTop;
 	private float[] boundaryLeft;
 	private float[] boundaryRight;
 	private float[] rectFloat;
 	private float[] rectPit;
 	
-	Gson gson;
-	Type type;
+	private Gson gson;
+	private Type ServerClientMessage;
+	private Type ServerClienInitializationtMessage;
+	
 	public static void main(String[] args) {
 		Server m = new Server();
 		m.run();
@@ -42,7 +43,6 @@ public class Server extends PApplet {
 		float[] rectFoundation1 = new float[] {0, windowHeight*.9f, windowWidth*.75f, windowHeight*.1f};
 		float[] rectFoundation2 = new float[] {windowWidth - (windowWidth*.15f), windowHeight*.9f, windowWidth*.15f, windowHeight*.1f};
 		
-		boundaryTop = new float[] {0, 0, windowWidth, 0};
 		boundaryLeft = new float[] {0, 0, 0, windowHeight};
 		boundaryRight = new float[] {windowWidth, 0, windowWidth, windowHeight};
 		rectFloat = new float[] {-1000, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f};
@@ -50,13 +50,12 @@ public class Server extends PApplet {
 				rectFoundation1[2]+20, 
 				rectFoundation1[1],
 				windowWidth - (rectFoundation1[2]+rectFoundation2[2]) - 20, 
-				rectFoundation1[3]};
-		System.out.println(Arrays.toString(rectFoundation1));
-		System.out.println(Arrays.toString(rectFoundation2));
-		System.out.println(Arrays.toString(rectPit));
+				rectFoundation1[3]
+		};
 		
 		gson = new Gson();
-		type = new TypeToken<ServerClientMessage>() {}.getType();
+		ServerClientMessage = new TypeToken<ServerClientMessage>() {}.getType();
+		ServerClienInitializationtMessage = new TypeToken<ServerClientInitializationMessage>() {}.getType();
 		
 		// start the thread that accepts incoming connections
 		Thread t = new Thread(new ServerAccept());
@@ -76,7 +75,15 @@ public class Server extends PApplet {
 					c = characters.get(i);
 					Random r = new Random();
 					c.setColor(new int[] {r.nextInt(255), r.nextInt(255), r.nextInt(255)});
-					writeMessageToClient(out);
+					
+					// send the non changing values to the client
+					ServerClientInitializationMessage scim = new ServerClientInitializationMessage();
+					scim.rectFloat = rectFloat;
+					scim.rectFoundation1 = rectFoundation1;
+					scim.rectFoundation2 = rectFoundation2;
+					scim.windowWidth = windowWidth;
+					scim.windowHeight = windowHeight;
+					out.println(gson.toJson(scim, ServerClienInitializationtMessage));
 				} else {
 					c = characters.get(i);
 					//if (frame % 100 == 0) {
@@ -105,9 +112,7 @@ public class Server extends PApplet {
 		if (floatingRectRightSide < 0 ) { // if goes off the screen to the left
 			message.floatingRectX = windowWidth; // have the rect wrap around on the right side
 		}
-		
-		String x = gson.toJson(message, type);
-		writer.println(x);
+		writer.println(gson.toJson(message, ServerClientMessage));
 	}
 
 	private Character updateCharacter(int i, Character c, PrintWriter writer) {
