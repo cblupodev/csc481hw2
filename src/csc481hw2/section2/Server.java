@@ -3,6 +3,7 @@ package csc481hw2.section2;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import csc481hw2.section2.Server;
@@ -22,10 +23,11 @@ public class Server extends PApplet {
 	
 	public static int windowWidth = 600;
 	public static int windowHeight = 400;
-	private float[] topBoundary;
-	private float[] leftBoundary;
-	private float[] rightBoundary;
-	private float[] floatRect;
+	private float[] boundaryTop;
+	private float[] boundaryLeft;
+	private float[] boundaryRight;
+	private float[] rectFloat;
+	private float[] rectPit;
 	
 	Gson gson;
 	Type type;
@@ -36,11 +38,22 @@ public class Server extends PApplet {
 	}
 	
 	public void run() {
+		// temps
+		float[] rectFoundation1 = new float[] {0, windowHeight*.9f, windowWidth*.75f, windowHeight*.1f};
+		float[] rectFoundation2 = new float[] {windowWidth - (windowWidth*.15f), windowHeight*.9f, windowWidth*.15f, windowHeight*.1f};
 		
-		topBoundary = new float[] {0, 0, windowWidth, 0};
-		leftBoundary = new float[] {0, 0, 0, windowHeight};
-		rightBoundary = new float[] {windowWidth, 0, windowWidth, windowHeight};
-		floatRect = new float[] {windowWidth * .7f, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f};
+		boundaryTop = new float[] {0, 0, windowWidth, 0};
+		boundaryLeft = new float[] {0, 0, 0, windowHeight};
+		boundaryRight = new float[] {windowWidth, 0, windowWidth, windowHeight};
+		rectFloat = new float[] {-1000, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f};
+		rectPit = new float[] {
+				rectFoundation1[2]+20, 
+				rectFoundation1[1],
+				windowWidth - (rectFoundation1[2]+rectFoundation2[2]) - 20, 
+				rectFoundation1[3]};
+		System.out.println(Arrays.toString(rectFoundation1));
+		System.out.println(Arrays.toString(rectFoundation2));
+		System.out.println(Arrays.toString(rectPit));
 		
 		gson = new Gson();
 		type = new TypeToken<ServerClientMessage>() {}.getType();
@@ -84,12 +97,10 @@ public class Server extends PApplet {
 	// mostly including updated info to draw
 	private ServerClientMessage message = new ServerClientMessage();
 	private float floatingRectRightSide;
-	int i = 0;
 	private void writeMessageToClient(PrintWriter writer) {
-		System.out.println("written to client "+i++);
 		message.characters = characters;
 		message.floatingRectX -= 1; // move the rect left
-		floatRect[0] = message.floatingRectX; // set the float rect for the server version of the shape
+		rectFloat[0] = message.floatingRectX; // set the float rect for the server version of the shape
 		floatingRectRightSide = message.floatingRectX + message.floatRectWidth;
 		if (floatingRectRightSide < 0 ) { // if goes off the screen to the left
 			message.floatingRectX = windowWidth; // have the rect wrap around on the right side
@@ -113,12 +124,13 @@ public class Server extends PApplet {
 			}
 		}
 		
-		// check if the agent has collided with the boundaries
+		// check if the agent has collided with the boundaries and other objects
 		// if it has then reset to its original position
 		if (
-				physics.lineRectWrap(leftBoundary, c.getShape()) || // left boundary 
-				physics.lineRectWrap(rightBoundary,c.getShape()) || // right boundary
-				physics.rectRectWrap(floatRect, c.getShape())       // floating rect
+				physics.lineRectWrap(boundaryLeft, c.getShape()) || // left boundary 
+				physics.lineRectWrap(boundaryRight,c.getShape()) || // right boundary
+				physics.rectRectWrap(rectFloat, c.getShape())    || // floating rect
+				physics.rectRectWrap(rectPit, c.getShape())         // the pit
 			) {
 			setToSpawnPoint(c);
 		}

@@ -37,14 +37,15 @@ public class Client extends PApplet {
 
 	private int windowWidth = 600;
 	private int windowHeight = 400;
-	private float[] foundation;
-	private float[] floatRect;
+	private float[] rectFoundation1;
+	private float[] rectFoundation2;
+	private float[] rectFloat;
 	
 	public void settings() {
-		size(windowWidth, windowHeight); // set the window demensions
+		size(windowWidth, windowHeight); // set the window dimensions
 	}
 	
-	public void setup() {		
+	public void setup() {
 		try {
 			gson  = new Gson();
 	        type = new TypeToken<ServerClientMessage>() {}.getType();
@@ -57,8 +58,9 @@ public class Client extends PApplet {
 			e.printStackTrace();
 		}
 		
-		foundation = new float[] {0, windowHeight*.9f, windowWidth, windowHeight*.1f};
-		floatRect = new float[] {windowWidth * .7f, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f};
+		rectFoundation1 = new float[] {0, windowHeight*.9f, windowWidth*.75f, windowHeight*.1f};
+		rectFoundation2 = new float[] {windowWidth - (windowWidth*.15f), windowHeight*.9f, windowWidth*.15f, windowHeight*.1f};
+		rectFloat = new float[] {-1000, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f};
 		fill(120,50,240);
 	}
 	
@@ -75,12 +77,13 @@ public class Client extends PApplet {
 		// render -->
 		background(0); // reset the background each frame
 		drawing.drawFill(new int[] {221,221,221}); // light gray
-		drawing.drawRect(foundation);
+		drawing.drawRect(rectFoundation1);
+		drawing.drawRect(rectFoundation2);
 		// move the floating rectangle
 		try {
-			floatRect[0] = message.floatingRectX;
+			rectFloat[0] = message.floatingRectX;
 		} catch (NullPointerException e1) { }
-		drawing.drawRect(floatRect); // draw the floating rectangle
+		drawing.drawRect(rectFloat); // draw the floating rectangle
 		//drawing.drawFill(new int[] {50,50,50}); // light gray
 		try {
 			for (Character i : message.characters) { // draw the characters
@@ -107,11 +110,9 @@ public class Client extends PApplet {
 	}
 
 	// read an updated message from the server
-	int i = 0;
 	private ServerClientMessage readMessageFromServer() {
 		try {
 			if (reader.ready()) {
-				System.out.println("read from server "+i++);
 				String i = reader.readLine();
 				ServerClientMessage message = gson.fromJson(i,type);
 				//System.out.println(i);
