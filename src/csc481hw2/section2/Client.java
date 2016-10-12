@@ -37,7 +37,6 @@ public class Client extends PApplet {
 	private int windowHeight;
 	private float[] rectFoundation1;
 	private float[] rectFoundation2;
-	private float[] rectFloat;
 	
 	public void settings() {
 		try {
@@ -67,7 +66,6 @@ public class Client extends PApplet {
 				ServerClientInitializationMessage initMessage = gson.fromJson(i,ServerClientInitializationMessage);
 				rectFoundation1 = initMessage.rectFoundation1;
 				rectFoundation2 = initMessage.rectFoundation2;
-				rectFloat = initMessage.rectFloat;
 				windowWidth = initMessage.windowWidth;
 				windowHeight = initMessage.windowHeight;
 		} catch (IOException e) {
@@ -88,16 +86,12 @@ public class Client extends PApplet {
 		drawing.drawFill(new int[] {221,221,221}); // light gray
 		drawing.drawRect(rectFoundation1);
 		drawing.drawRect(rectFoundation2);
-		// move the floating rectangle
-		try {
-			rectFloat[0] = message.floatingRectX;
-		} catch (NullPointerException e1) { }
-		drawing.drawRect(rectFloat); // draw the floating rectangle
+		
 		//drawing.drawFill(new int[] {50,50,50}); // light gray
 		try {
-			for (Character i : message.characters) { // draw the characters
-				drawing.drawFill(i.getColor());
-				drawing.drawRect(i.getShape()); 
+			message.floatPlatformMessage.draw();
+			for (Character c : message.charactersMessage) { // draw the characters
+				c.draw();
 			}
 		} catch (NullPointerException e) { }
 	}
@@ -134,22 +128,6 @@ public class Client extends PApplet {
 		return lastMessage;
 	}
 	
-	private class Drawing {	// wrapper to easily call rect() from just passing an array
-		public void drawRect(float[] rect) {
-			rect(rect[0], rect[1], rect[2], rect[3]);
-		}
-		// wrapper to easily call line() from just passing an array	
-		public void drawLine(float[] line) {
-			line(line[0], line[1], line[2], line[3]);
-		}
-		// wrapper to easily call fill() from just passing an array	
-		public void drawFill(int[] rgb) {
-			fill(rgb[0], rgb[1], rgb[2]);
-		}
-		// wrapper to easily call stroke() from just passing an array	
-		public void drawStroke(int[] rgb) {
-			stroke(rgb[0], rgb[1], rgb[2]);
-		}
-	}
+
 
 }

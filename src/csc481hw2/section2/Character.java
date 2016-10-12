@@ -1,6 +1,10 @@
 package csc481hw2.section2;
 
-public class Character {
+import java.io.PrintWriter;
+
+import processing.core.PApplet;
+
+public class Character extends PApplet {
 	
 	private float originalX;
 	private float originalY;
@@ -10,6 +14,9 @@ public class Character {
 	private boolean jumping = false;
 	private float jumpingAngle = 180f;
 	
+	Physics phsyics = new Physics();
+	Drawing drawing = new Drawing();
+
 	public Character(float originalX, float originalY, float[] rect, int[] color) {
 		this.setOriginalX(originalX);
 		this.setOriginalY(originalY);
@@ -24,17 +31,43 @@ public class Character {
 		this.setOriginalY(getShape()[1]);
 		this.setColor(new int[] {255,255,255}); //white
 	}
-
-/*	// convert the object to json so it can send over the object stream
-	// TODO
-	private Object writeReplace() throws ObjectStreamException {
-        return gson.toJson(this, type);
+	
+	public Character updateCharacter(int i, Character c, PrintWriter writer, int windowHeight) {
+		// redraw the agent if it's in the process of jumping
+		if (c.isJumping()) {
+			// used that colliding circles example from processing.org
+			float newY = windowHeight*.9f - 50 + (200 * sin(radians(c.getJumpingAngle())));
+			c.getShape()[1] = newY;// set a new y position
+			c.setJumpingAngle(c.getJumpingAngle()+3); // increment the jumping angle
+			if (c.getJumpingAngle() == 360) { // stop jumping if reached the ground
+				c.setJumping(false);
+				c.setJumpingAngle(180);
+				c.getShape()[1] = c.getOriginalY();
+			}
+		}
+		
+		// check if the agent has collided with the boundaries and other objects
+		// if it has then reset to its original position
+		if (phsyics.collision(this)) {
+			setToSpawnPoint();
+		}
+		
+		return this;	
 	}
 	
-	// TODO
-	private Object readResolve() throws ObjectStreamException {
-		return "";
-	}*/
+	public void draw() {
+		drawing.drawFill(this.getColor());
+		drawing.drawRect(this.getShape());
+	}
+	
+
+	
+	// set a character to its spawn position and state
+	private void setToSpawnPoint() {
+		setJumping(false);
+		getShape()[0] = getOriginalX();
+		getShape()[1] = getOriginalY();
+	}
 
 	public float[] getShape() {
 		return shape;
