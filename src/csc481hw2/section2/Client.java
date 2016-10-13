@@ -92,12 +92,10 @@ public class Client extends PApplet {
 		drawing.drawFill(new int[] {50,50,50}); // light gray
 		try {
 			FloatingPlatform fp = message.floatPlatformMessage;
-			fp.setParent(this);
-			System.out.println(Arrays.toString(fp.shape));
-			fp.draw();
-			//for (Character c : message.charactersMessage) { // draw the characters
-				//c.draw();
-			//}
+			fp.draw(this);
+			for (Character c : message.charactersMessage) { // draw the characters
+				c.draw(this);
+			}
 		} catch (NullPointerException e) { }
 	}
 	

@@ -55,9 +55,30 @@ public class Character {
 		return this;	
 	}
 	
-	public void draw() {
+	public void draw(PApplet p) {
+		setParent(p);
 		drawing.drawFill(this.getColor());
 		drawing.drawRect(this.getShape());
+	}
+	
+	public void setParent(PApplet parent) {
+		if (getDrawing().parent == null) {
+			drawing.parent = parent;
+		}
+	}
+	
+	public Drawing getDrawing() {
+		if (drawing == null) {
+			this.drawing = new Drawing();
+		}
+		return this.drawing;
+	}
+	
+	public Physics getPhysics() {
+		if (physics == null) {
+			this.physics = new Physics();
+		}
+		return this.physics;
 	}
 	
 

@@ -29,7 +29,8 @@ public class FloatingPlatform {
 		}
 	}
 	
-	public void draw() {
+	public void draw(PApplet p) {
+		setParent(p);
 		drawing.drawRect(shape);
 	}
 	
