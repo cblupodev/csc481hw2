@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
+import java.util.Arrays;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -15,7 +16,7 @@ import processing.core.PApplet;
 public class Client extends PApplet {
 	
 	private static final int PORT = 6789;
-	private Drawing drawing = new Drawing();
+	private Drawing drawing = null;
 	private PrintWriter writer = null;
 	private BufferedReader reader = null;
 	private Socket socket = null;
@@ -40,6 +41,7 @@ public class Client extends PApplet {
 	
 	public void settings() {
 		try {
+			drawing = new Drawing(this);
 			gson  = new Gson();
 	        ServerClientMessage = new TypeToken<ServerClientMessage>() {}.getType();
 	        ServerClientInitializationMessage = new TypeToken<ServerClientInitializationMessage>() {}.getType();
@@ -87,12 +89,15 @@ public class Client extends PApplet {
 		drawing.drawRect(rectFoundation1);
 		drawing.drawRect(rectFoundation2);
 		
-		//drawing.drawFill(new int[] {50,50,50}); // light gray
+		drawing.drawFill(new int[] {50,50,50}); // light gray
 		try {
-			message.floatPlatformMessage.draw();
-			for (Character c : message.charactersMessage) { // draw the characters
-				c.draw();
-			}
+			FloatingPlatform fp = message.floatPlatformMessage;
+			fp.setParent(this);
+			System.out.println(Arrays.toString(fp.shape));
+			fp.draw();
+			//for (Character c : message.charactersMessage) { // draw the characters
+				//c.draw();
+			//}
 		} catch (NullPointerException e) { }
 	}
 	

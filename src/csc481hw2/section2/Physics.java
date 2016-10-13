@@ -6,7 +6,7 @@ import processing.core.PApplet;
 
 public class Physics extends PApplet {
 	
-	private ArrayList<float[]> collidables;
+	private ArrayList<float[]> collidables = new ArrayList<>();
 	
 	public float sinWrap(float f) {
 		return sin(f);
@@ -55,9 +55,6 @@ public class Physics extends PApplet {
 		    // optionally, draw a circle where the lines meet
 		    float intersectionX = x1 + (uA * (x2-x1));
 		    float intersectionY = y1 + (uA * (y2-y1));
-		    fill(255,0,0);
-		    noStroke();
-		    ellipse(intersectionX,intersectionY, 20,20);
 		    
 		    return true;
 		  }

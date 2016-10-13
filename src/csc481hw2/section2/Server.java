@@ -3,7 +3,9 @@ package csc481hw2.section2;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import csc481hw2.section2.Server;
@@ -14,7 +16,7 @@ import java.lang.reflect.Type;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class Server extends PApplet {
+public class Server {
 	
 	public static int windowWidth = 600;
 	public static int windowHeight = 400;
@@ -26,7 +28,8 @@ public class Server extends PApplet {
 	private Physics physics = new Physics();
 	
 	private Gson gson;
-	private Type ServerClienInitializationtMessage;
+	private Type ServerClienInitializationtMessageType;
+	private Type ServerClientMessageType;
 	
 	public static void main(String[] args) {
 		Server m = new Server();
@@ -57,7 +60,8 @@ public class Server extends PApplet {
 		
 		
 		gson = new Gson();
-		ServerClienInitializationtMessage = new TypeToken<ServerClientInitializationMessage>() {}.getType();
+		ServerClienInitializationtMessageType = new TypeToken<ServerClientInitializationMessage>() {}.getType();
+		ServerClientMessageType = new TypeToken<ServerClientMessage>() {}.getType();
 		
 		// start the thread that accepts incoming connections
 		Thread t = new Thread(new ServerAccept());
@@ -85,7 +89,7 @@ public class Server extends PApplet {
 					scim.rectFoundation2 = rectFoundation2;
 					scim.windowWidth = windowWidth;
 					scim.windowHeight = windowHeight;
-					out.println(gson.toJson(scim, ServerClienInitializationtMessage));
+					out.println(gson.toJson(scim, ServerClienInitializationtMessageType));
 				} else {
 					c = characters.get(i);
 					//if (frame % 100 == 0) {
@@ -104,9 +108,12 @@ public class Server extends PApplet {
 	
 	// write a message to the client
 	// mostly including updated info to draw
-	private ServerClientMessage message = new ServerClientMessage();
+	ServerClientMessage message = new ServerClientMessage();
 	private void writeMessageToClient(PrintWriter writer) {
-		message.send(writer, floatingPlatform, characters);
+		floatingPlatform.update();
+		message.floatPlatformMessage = floatingPlatform;
+		message.charactersMessage = characters;
+		writer.println(gson.toJson(message, ServerClientMessageType));
 	}
 
 	private Character readInputFromClient(int i, Character c, BufferedReader r, PrintWriter writer) {

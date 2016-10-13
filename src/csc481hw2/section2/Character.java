@@ -14,8 +14,8 @@ public class Character {
 	private boolean jumping = false;
 	private float jumpingAngle = 180f;
 	
-	Physics physics = new Physics();
-	Drawing drawing = new Drawing();
+	transient Physics physics = new Physics();
+	transient Drawing drawing = new Drawing();
 
 	public Character(float originalX, float originalY, float[] rect, int[] color) {
 		this.setOriginalX(originalX);
