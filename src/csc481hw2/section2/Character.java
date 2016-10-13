@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 
 import processing.core.PApplet;
 
-public class Character extends PApplet {
+public class Character {
 	
 	private float originalX;
 	private float originalY;
@@ -14,7 +14,7 @@ public class Character extends PApplet {
 	private boolean jumping = false;
 	private float jumpingAngle = 180f;
 	
-	Physics phsyics = new Physics();
+	Physics physics = new Physics();
 	Drawing drawing = new Drawing();
 
 	public Character(float originalX, float originalY, float[] rect, int[] color) {
@@ -36,7 +36,7 @@ public class Character extends PApplet {
 		// redraw the agent if it's in the process of jumping
 		if (c.isJumping()) {
 			// used that colliding circles example from processing.org
-			float newY = windowHeight*.9f - 50 + (200 * sin(radians(c.getJumpingAngle())));
+			float newY = windowHeight*.9f - 50 + (200 * physics.sinWrap(physics.radiansWrap(c.getJumpingAngle())));
 			c.getShape()[1] = newY;// set a new y position
 			c.setJumpingAngle(c.getJumpingAngle()+3); // increment the jumping angle
 			if (c.getJumpingAngle() == 360) { // stop jumping if reached the ground
@@ -48,7 +48,7 @@ public class Character extends PApplet {
 		
 		// check if the agent has collided with the boundaries and other objects
 		// if it has then reset to its original position
-		if (phsyics.collision(this)) {
+		if (physics.collision(this)) {
 			setToSpawnPoint();
 		}
 		

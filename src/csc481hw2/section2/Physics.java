@@ -4,9 +4,17 @@ import java.util.ArrayList;
 
 import processing.core.PApplet;
 
-public class Physics {
+public class Physics extends PApplet {
 	
 	private ArrayList<float[]> collidables;
+	
+	public float sinWrap(float f) {
+		return sin(f);
+	}
+	
+	public float radiansWrap(float f) {
+		return radians(f);
+	}
 	
 	public <T> boolean collision(T objParam) {
 		Character obj = (Character) objParam;
@@ -37,21 +45,24 @@ public class Physics {
 	// LINE/LINE
 	boolean lineLine(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
 
-	  // calculate the direction of the lines
-	  float uA = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
-	  float uB = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+		  // calculate the distance to intersection point
+		  float uA = ((x4-x3)*(y1-y3) - (y4-y3)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
+		  float uB = ((x2-x1)*(y1-y3) - (y2-y1)*(x1-x3)) / ((y4-y3)*(x2-x1) - (x4-x3)*(y2-y1));
 
-	  // if uA and uB are between 0-1, lines are colliding
-	  if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
-
-	    // optionally, draw a circle where the lines meet
-	    float intersectionX = x1 + (uA * (x2-x1));
-	    float intersectionY = y1 + (uA * (y2-y1));
-
-	    return true;
-	  }
-	  return false;
-	}
+		  // if uA and uB are between 0-1, lines are colliding
+		  if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
+		    
+		    // optionally, draw a circle where the lines meet
+		    float intersectionX = x1 + (uA * (x2-x1));
+		    float intersectionY = y1 + (uA * (y2-y1));
+		    fill(255,0,0);
+		    noStroke();
+		    ellipse(intersectionX,intersectionY, 20,20);
+		    
+		    return true;
+		  }
+		  return false;
+		}
 	
 	// collision detection between a rectangle and rectangle
 	// copied from https://github.com/jeffThompson/CollisionDetection
