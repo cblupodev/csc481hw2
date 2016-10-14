@@ -1,8 +1,11 @@
 package csc481hw2.section2;
 
+import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ServerClientMessage {
-	FloatingPlatform floatPlatformMessage;
-	CopyOnWriteArrayList<Character> charactersMessage = new CopyOnWriteArrayList<>();
+	float[] floatPlatformShapeMessage;
+	ArrayList<float[]> cShapes = new ArrayList<>();
+	ArrayList<Boolean> cJumping = new ArrayList<>();
+	ArrayList<Float>   cjumpingAngle = new ArrayList<>();
 }

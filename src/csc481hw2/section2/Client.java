@@ -6,7 +6,9 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Random;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -22,6 +24,7 @@ public class Client extends PApplet {
 	private Socket socket = null;
 	private String address = "";
 	private ServerClientMessage lastMessage;
+	private ArrayList<Character> characters = new ArrayList<>(); 
 	
 	private Gson gson;
 	private Type ServerClientMessage;
@@ -76,6 +79,7 @@ public class Client extends PApplet {
 	}
 
 	int j = 0;
+	FloatingPlatform fp = new FloatingPlatform(windowWidth, windowHeight);
 	public void draw() {
 		j++;
 		// read the character object from the server. the server does the updating
@@ -91,11 +95,25 @@ public class Client extends PApplet {
 		
 		drawing.drawFill(new int[] {50,50,50}); // light gray
 		try {
-			FloatingPlatform fp = message.floatPlatformMessage;
+			fp.shape = message.floatPlatformShapeMessage;
 			fp.draw(this);
-			for (Character c : message.charactersMessage) { // draw the characters
-				c.draw(this);
+			for (int i = 0; i < message.cShapes.size(); i++){ // draw the characters
+				if (message.cShapes.size() > characters.size()) { // if a new client connected and thus character added, then add to the list
+					Character c = new Character(windowWidth, windowHeight);
+					Random r = new Random();
+					c.color = new int[] {r.nextInt(255), r.nextInt(255), r.nextInt(255)};
+					characters.add(c);
+				}
+				// update the characters
+				characters.get(i).shape = message.cShapes.get(i);
+				characters.get(i).jumping = message.cJumping.get(i);
+				characters.get(i).jumpingAngle = message.cjumpingAngle.get(i);
+				characters.get(i).draw(this);
 			}
+			
+			//for (Character c : message.charactersMessage) { // draw the characters
+			//	c.draw(this);
+			//}
 		} catch (NullPointerException e) { }
 	}
 	

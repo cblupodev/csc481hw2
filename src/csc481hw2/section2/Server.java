@@ -25,8 +25,8 @@ public class Server {
 	public static CopyOnWriteArrayList<BufferedReader> inStream = new CopyOnWriteArrayList<>();
 	public static CopyOnWriteArrayList<PrintWriter> outStream = new CopyOnWriteArrayList<>();
 	public FloatingPlatform floatingPlatform = new FloatingPlatform(windowWidth, windowHeight);
-	private Physics physics = new Physics();
-	
+	private Physics physics;
+
 	private Gson gson;
 	private Type ServerClienInitializationtMessageType;
 	private Type ServerClientMessageType;
@@ -39,24 +39,24 @@ public class Server {
 	
 	public void run() {
 		// temps
-		float[] rectFoundation1 = new float[] {0, windowHeight*.9f, windowWidth*.75f, windowHeight*.1f};
-		float[] rectFoundation2 = new float[] {windowWidth - (windowWidth*.15f), windowHeight*.9f, windowWidth*.15f, windowHeight*.1f};
+		EnvironmentShape rectFoundation1 = new EnvironmentShape("rect", new float[] {0, windowHeight*.9f, windowWidth*.75f, windowHeight*.1f});
+		EnvironmentShape rectFoundation2 = new EnvironmentShape("line", new float[] {windowWidth - (windowWidth*.15f), windowHeight*.9f, windowWidth*.15f, windowHeight*.1f});
 		
-		float[] boundaryLeft = new float[] {0, 0, 0, windowHeight};
-		float[] boundaryRight = new float[] {windowWidth, 0, windowWidth, windowHeight};
-		float[] rectFloat = new FloatingPlatform(windowWidth, windowHeight).shape;
-		float[] rectPit = new float[] {
-				rectFoundation1[2]+20, 
-				rectFoundation1[1],
-				windowWidth - (rectFoundation1[2]+rectFoundation2[2]) - 20, 
-				rectFoundation1[3]
-		};
-		
+		EnvironmentShape boundaryLeft = new EnvironmentShape("line", new float[] {0, 0, 0, windowHeight});
+		EnvironmentShape boundaryRight = new EnvironmentShape("line", new float[] {windowWidth, 0, windowWidth, windowHeight});
+		EnvironmentShape rectPit = new EnvironmentShape("rect", new float[] {
+				rectFoundation1.shape[2]+20, 
+				rectFoundation1.shape[1],
+				windowWidth - (rectFoundation1.shape[2]+rectFoundation2.shape[2]) - 20, 
+				rectFoundation1.shape[3]
+		});
+
 		// add collidable stuff to the physics component
-		physics.addToCollidables(boundaryLeft);
-		physics.addToCollidables(boundaryRight);
-		physics.addToCollidables(rectFloat);
-		physics.addToCollidables(rectPit);
+		physics = new Physics();
+		physics.floatingPlatform = floatingPlatform;
+		physics.addToEnvironmentShapes(boundaryLeft);
+		physics.addToEnvironmentShapes(boundaryRight);
+		physics.addToEnvironmentShapes(rectPit);
 		
 		
 		gson = new Gson();
@@ -79,22 +79,19 @@ public class Server {
 				if (characters.size() != inStream.size()) { // add a character
 					characters.add(i, new Character(windowWidth, windowHeight));
 					c = characters.get(i);
-					Random r = new Random();
-					c.setColor(new int[] {r.nextInt(255), r.nextInt(255), r.nextInt(255)});
+					c.physics = this.physics;
 					
 					// send the non changing values to the client
 					ServerClientInitializationMessage scim = new ServerClientInitializationMessage();
-					scim.rectFloat = rectFloat;
-					scim.rectFoundation1 = rectFoundation1;
-					scim.rectFoundation2 = rectFoundation2;
+					scim.rectFloat = floatingPlatform.shape;
+					scim.rectFoundation1 = rectFoundation1.shape;
+					scim.rectFoundation2 = rectFoundation2.shape;
 					scim.windowWidth = windowWidth;
 					scim.windowHeight = windowHeight;
 					out.println(gson.toJson(scim, ServerClienInitializationtMessageType));
 				} else {
 					c = characters.get(i);
-					//if (frame % 100 == 0) {
-						characters.set(i, readInputFromClient(i, c, inStream.get(i), out)); // read input from client
-					//}
+					characters.set(i, readInputFromClient(i, c, inStream.get(i), out)); // read input from client
 					if (frame % 10000 == 0) { // need the frames or else it will update everything to quickly before you can read input
 						characters.set(i, c.updateCharacter(i, c, out, windowHeight));
 						writeMessageToClient(out);
@@ -108,11 +105,16 @@ public class Server {
 	
 	// write a message to the client
 	// mostly including updated info to draw
-	ServerClientMessage message = new ServerClientMessage();
 	private void writeMessageToClient(PrintWriter writer) {
+		ServerClientMessage message = new ServerClientMessage();
 		floatingPlatform.update();
-		message.floatPlatformMessage = floatingPlatform;
-		message.charactersMessage = characters;
+		physics.floatingPlatform = floatingPlatform; // update the platform in the physics component
+		message.floatPlatformShapeMessage = floatingPlatform.shape;
+		for (Character c : characters) {
+			message.cShapes.add(c.shape);
+			message.cJumping.add(c.jumping);
+			message.cjumpingAngle.add(c.jumpingAngle);
+		}
 		writer.println(gson.toJson(message, ServerClientMessageType));
 	}
 
@@ -121,20 +123,7 @@ public class Server {
 			if (r.ready()) {
 				String message = r.readLine();
 				boolean keypressed = false;
-				if(message.equals("LEFT")) {
-					c.getShape()[0] -= 5; // move x position left
-					keypressed = true;
-				}
-				if (message.equals("RIGHT")) {
-					c.getShape()[0] += 5; // move x position right
-					keypressed = true;			
-				}
-				if (message.equals("SPACE")) {
-					keypressed = true;
-					if (c.isJumping() == false) {
-						c.setJumping(true);
-					}
-				}
+				keypressed = c.updateInput(message);
 				if (keypressed) {
 					characters.set(i, c);
 					return c;

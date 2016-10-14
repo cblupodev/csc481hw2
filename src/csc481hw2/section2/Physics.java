@@ -6,7 +6,8 @@ import processing.core.PApplet;
 
 public class Physics extends PApplet {
 	
-	private ArrayList<float[]> collidables = new ArrayList<>();
+	private ArrayList<EnvironmentShape> environmentShapes = new ArrayList<>();
+	public FloatingPlatform floatingPlatform;
 	
 	public float sinWrap(float f) {
 		return sin(f);
@@ -18,26 +19,30 @@ public class Physics extends PApplet {
 	
 	public <T> boolean collision(T objParam) {
 		Character obj = (Character) objParam;
-		for (int i  = 0; i < collidables.size(); i++) {
+		for (int i  = 0; i < environmentShapes.size(); i++) {
 			try {
-			if (
-					lineRectWrap(collidables.get(i), obj.getShape()) || // left boundary 
-					lineRectWrap(collidables.get(i), obj.getShape()) || // right boundary
-					rectRectWrap(collidables.get(i), obj.getShape())    || // floating rect
-					rectRectWrap(collidables.get(i), obj.getShape())         // the pit
-				) {
-				return true;
-			}
+				if (environmentShapes.get(i).type.equals("rect")) {
+					if (rectRectWrap(environmentShapes.get(i).shape, obj.shape)) {
+						return true;
+					}
+				} else if (environmentShapes.get(i).type.equals("line")) {
+					if (lineRectWrap(environmentShapes.get(i).shape, obj.shape)) {
+						return true;
+					}
+				}
 			} catch (Exception e) {
 				// this will probably catch the exceptions thrown from methods with mismatched shapes 
 				System.out.println(e.getMessage());
 			}
 		}
+		if (rectRectWrap(floatingPlatform.shape, obj.shape)) {
+			return true;
+		}
 		return false;
 	}
 	
-	public void addToCollidables(float[] f) {
-		collidables.add(f);
+	public void addToEnvironmentShapes(EnvironmentShape es) {
+		environmentShapes.add(es);
 	}
 	
 	// collision detection between two lines
@@ -103,9 +108,5 @@ public class Physics extends PApplet {
 	
 	boolean rectRectWrap(float[] r1, float[] r2) {
 		return rectRect(r1[0], r1[1], r1[2], r1[3], r2[0], r2[1], r2[2], r2[3]);
-	}
-	
-	boolean lineLineWrap(float[] l1, float[] l2) {
-		return lineLine(l1[0], l1[1], l1[2], l1[3], l2[0], l2[1], l2[2], l2[3]);
 	}
 }
