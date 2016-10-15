@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 import csc481hw2.section2.Character;
 import csc481hw2.section2.FloatingPlatform;
+import csc481hw2.section2.Server;
 import processing.core.PApplet;
 
 public class Physics extends PApplet implements Component {
 	
-	public ArrayList<Immovable> immovables = new ArrayList<>();
-	public ArrayList<Movable>   movables = new ArrayList<>();
+	public FloatingPlatform floatingPlatform;
 	
 	public float sinWrap(float f) {
 		return sin(f);
@@ -19,40 +19,44 @@ public class Physics extends PApplet implements Component {
 		return radians(f);
 	}
 	
-	public <T> boolean collision(T objParam) {
-		Character obj = (Character) objParam;
+	public void collision() {
 		try {
-			// check immovables
-			for (int i  = 0; i < immovables.size(); i++) {
-					if (obj.type.equals("rect")) {
-						if (immovables.get(i).type.equals("rect")) {
-							if (rectRectWrap(immovables.get(i).shape, obj.shape)) {
-								return true;
+			for (int j = 0; j < Server.characters.size(); j++) {
+				Character c = Server.characters.get(j);
+				// check immovables
+				for (int i = 0; i < Server.immovables.size(); i++) {
+					if (c.type.equals("rect")) {
+						if (Server.immovables.get(i).type.equals("rect")) {
+							if (rectRectWrap(Server.immovables.get(i).shape, c.shape)) {
+								c.setToSpawnPoint();
 							}
-						} else if (immovables.get(i).type.equals("line")) {
-							if (lineRectWrap(immovables.get(i).shape, obj.shape)) {
-								return true;
+						} else if (Server.immovables.get(i).type.equals("line")) {
+							if (lineRectWrap(Server.immovables.get(i).shape, c.shape)) {
+								c.setToSpawnPoint();
 							}
-						} 
-					}
-				
-			}
-			// check movables
-			for (int i = 0; i < movables.size(); i++) {
-				if (obj.type.equals("rect")) {
-					if (movables.get(i).type.equals("rect")) {
-						if (rectRectWrap(immovables.get(i).shape, obj.shape)) {
-							return true;
 						}
 					}
-					
 				}
+				// check movables
+				//			for (int i = 0; i < Server.movables.size(); i++) {
+				//				if (obj.type.equals("rect")) {
+				//					if (Server.movables.get(i).type.equals("rect")) {
+				//						if (rectRectWrap(Server.immovables.get(i).shape, obj.shape)) {
+				//							obj.setToSpawnPoint();
+				//							return true;
+				//						}
+				//					}
+				//					
+				//				}
+				//			}
+				if (rectRectWrap(c.shape, floatingPlatform.shape)) {
+					c.setToSpawnPoint();
+				} 
 			}
 		} catch (Exception e) {
 			// this will probably catch the exceptions thrown from methods with mismatched shapes 
 			System.out.println(e.getMessage());
 		}
-		return false;
 	}
 	
 	// collision detection between two lines

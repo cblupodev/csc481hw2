@@ -14,7 +14,7 @@ public class Character extends Movable implements GameObject {
 	float jumpingAngle = 180f;
 	int windowHeight;
 	
-	transient Physics physics = new Physics();
+	Physics physics = new Physics();
 
 	public Character(int windowWidth, int windowHeight) {
 		this.type = "rect";
@@ -40,9 +40,9 @@ public class Character extends Movable implements GameObject {
 		
 		// check if the agent has collided with the boundaries and other objects
 		// if it has then reset to its original position
-		if (physics.collision(this)) {
-			setToSpawnPoint();
-		}
+//		if (physics.collision(this)) {
+//			setToSpawnPoint();
+//		}
 		
 		return this;	
 	}
@@ -79,7 +79,7 @@ public class Character extends Movable implements GameObject {
 	}
 	
 	// set a character to its spawn position and state
-	private void setToSpawnPoint() {
+	public void setToSpawnPoint() {
 		jumping = false;
 		shape[0] = originalX;
 		shape[1] = originalY;

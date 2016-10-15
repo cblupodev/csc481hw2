@@ -4,12 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import csc481hw2.section1.Immovable;
+import csc481hw2.section1.Movable;
 import csc481hw2.section1.Physics;
 import csc481hw2.section2.Server;
 import csc481hw2.section2.ServerAccept;
@@ -28,6 +27,10 @@ public class Server {
 	public static CopyOnWriteArrayList<BufferedReader> inStream = new CopyOnWriteArrayList<>();
 	public static CopyOnWriteArrayList<PrintWriter> outStream = new CopyOnWriteArrayList<>();
 	public FloatingPlatform floatingPlatform = new FloatingPlatform(windowWidth, windowHeight);
+	
+	public static ArrayList<Immovable> immovables = new ArrayList<>();
+	public static ArrayList<Movable> movables = new ArrayList<>();
+	
 	private Physics physics;
 
 	private Gson gson;
@@ -53,14 +56,12 @@ public class Server {
 				windowWidth - (rectFoundation1.shape[2]+rectFoundation2.shape[2]) - 20, 
 				rectFoundation1.shape[3]
 		});
-
+		immovables.add(boundaryLeft);
+		immovables.add(boundaryRight);
+		immovables.add(rectPit);
+		
 		// add collidable stuff to the physics component
 		physics = new Physics();
-		physics.movables.add(floatingPlatform);
-		physics.immovables.add(boundaryLeft);
-		physics.immovables.add(boundaryRight);
-		physics.immovables.add(rectPit);
-		
 		
 		gson = new Gson();
 		ServerClienInitializationtMessageType = new TypeToken<ServerClientInitializationMessage>() {}.getType();
@@ -116,6 +117,7 @@ public class Server {
 					characters.set(i, readInputFromClient(i, c, inStream.get(i), out)); // read input from client
 					// UPDATE
 					if (frame % 10000 == 0) { // need the frames or else it will update everything to quickly before you can read input
+						physics.collision();
 						characters.set(i, c.update());
 						floatingPlatform.update();
 						physics.floatingPlatform = floatingPlatform; // update the platform in the physics component
