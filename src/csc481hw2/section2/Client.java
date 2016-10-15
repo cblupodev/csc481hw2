@@ -71,12 +71,17 @@ public class Client extends PApplet {
 		boolean initialized = false;
 		try {
 			while(!initialized) {
+				String i = "";
+				while (reader.ready()) {
+					i  = reader.readLine();
+					System.out.println(i);
+				}
 				if (!reader.ready()) {
 					System.out.println("uninitialized");
 				} else {
 					System.out.println(1);
 					System.out.println(reader.ready());
-					String i = reader.readLine();
+					//i = reader.readLine();
 					System.out.println(2);
 					ServerClientInitializationMessage initMessage = gson.fromJson(i,ServerClientInitializationMessage);
 					if (initMessage.rectFoundation1 != null) {
