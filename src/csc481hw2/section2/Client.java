@@ -13,6 +13,7 @@ import java.util.Random;
 import javax.naming.RefAddr;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import csc481hw2.section1.Drawing;
@@ -68,34 +69,18 @@ public class Client extends PApplet {
 	
 	// this should only read the first message the server ever sends
 	private void initializeFinalValues() {
-		boolean initialized = false;
+		String i = "";
 		try {
-			while(!initialized) {
-				String i = "";
-				while (reader.ready()) {
-					i  = reader.readLine();
-					System.out.println(i);
-				}
-				if (!reader.ready()) {
-					System.out.println("uninitialized");
-				} else {
-					System.out.println(1);
-					System.out.println(reader.ready());
-					//i = reader.readLine();
-					System.out.println(2);
-					ServerClientInitializationMessage initMessage = gson.fromJson(i,ServerClientInitializationMessage);
-					if (initMessage.rectFoundation1 != null) {
-						rectFoundation1 = initMessage.rectFoundation1;
-						rectFoundation2 = initMessage.rectFoundation2;
-						windowWidth = initMessage.windowWidth;
-						windowHeight = initMessage.windowHeight;
-						initialized = true;
-						writer.println("initialized");
-					} else {
-						//writer.println("uninitialized");
-					}
-				}
-			}
+				System.out.println("is reader ready?   " + reader.ready());
+				i = reader.readLine();
+				ServerClientInitializationMessage initMessage = gson.fromJson(i,ServerClientInitializationMessage);
+				rectFoundation1 = initMessage.rectFoundation1;
+				rectFoundation2 = initMessage.rectFoundation2;
+				windowWidth = initMessage.windowWidth;
+				windowHeight = initMessage.windowHeight;
+				writer.println("initialized");
+		} catch (JsonSyntaxException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

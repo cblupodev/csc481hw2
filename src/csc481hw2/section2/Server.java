@@ -89,29 +89,16 @@ public class Server {
 					c.color = new int[] {r.nextInt(255), r.nextInt(255), r.nextInt(255)};
 					c.physics = this.physics;
 					
-					boolean initialized = false;
-					try {
-						while(!initialized) {
-							// send the non changing values to the client
-							ServerClientInitializationMessage scim = new ServerClientInitializationMessage();
-							scim.rectFloat = floatingPlatform.shape;
-							scim.rectFoundation1 = rectFoundation1.shape;
-							scim.rectFoundation2 = rectFoundation2.shape;
-							scim.windowWidth = windowWidth;
-							scim.windowHeight = windowHeight;
-							out.println(gson.toJson(scim, ServerClienInitializationtMessageType));
-							out.flush();
-							System.out.println("init sent");
-							String message = inStream.get(i).readLine();
-							System.out.println(message);
-							if (message.equals("initialized")) {
-								initialized = true;
-							}
-						}
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					// send the non changing values to the client
+					ServerClientInitializationMessage scim = new ServerClientInitializationMessage();
+					scim.rectFloat = floatingPlatform.shape;
+					scim.rectFoundation1 = rectFoundation1.shape;
+					scim.rectFoundation2 = rectFoundation2.shape;
+					scim.windowWidth = windowWidth;
+					scim.windowHeight = windowHeight;
+					out.println(gson.toJson(scim, ServerClienInitializationtMessageType));
+					out.flush();
+					System.out.println("init sent");
 				} else {
 					c = characters.get(i);
 					characters.set(i, readInputFromClient(i, c, inStream.get(i), out)); // read input from client
