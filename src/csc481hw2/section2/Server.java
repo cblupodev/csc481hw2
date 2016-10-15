@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import csc481hw2.section1.Immovable;
+import csc481hw2.section1.Physics;
 import csc481hw2.section2.Server;
 import csc481hw2.section2.ServerAccept;
 import processing.core.PApplet;
@@ -39,12 +42,12 @@ public class Server {
 	
 	public void run() {
 		// temps
-		EnvironmentShape rectFoundation1 = new EnvironmentShape("rect", new float[] {0, windowHeight*.9f, windowWidth*.75f, windowHeight*.1f});
-		EnvironmentShape rectFoundation2 = new EnvironmentShape("line", new float[] {windowWidth - (windowWidth*.15f), windowHeight*.9f, windowWidth*.15f, windowHeight*.1f});
+		Immovable rectFoundation1 = new Immovable("rect", new float[] {0, windowHeight*.9f, windowWidth*.75f, windowHeight*.1f});
+		Immovable rectFoundation2 = new Immovable("line", new float[] {windowWidth - (windowWidth*.15f), windowHeight*.9f, windowWidth*.15f, windowHeight*.1f});
 		
-		EnvironmentShape boundaryLeft = new EnvironmentShape("line", new float[] {0, 0, 0, windowHeight});
-		EnvironmentShape boundaryRight = new EnvironmentShape("line", new float[] {windowWidth, 0, windowWidth, windowHeight});
-		EnvironmentShape rectPit = new EnvironmentShape("rect", new float[] {
+		Immovable boundaryLeft = new Immovable("line", new float[] {0, 0, 0, windowHeight});
+		Immovable boundaryRight = new Immovable("line", new float[] {windowWidth, 0, windowWidth, windowHeight});
+		Immovable rectPit = new Immovable("rect", new float[] {
 				rectFoundation1.shape[2]+20, 
 				rectFoundation1.shape[1],
 				windowWidth - (rectFoundation1.shape[2]+rectFoundation2.shape[2]) - 20, 
@@ -53,10 +56,10 @@ public class Server {
 
 		// add collidable stuff to the physics component
 		physics = new Physics();
-		physics.floatingPlatform = floatingPlatform;
-		physics.addToEnvironmentShapes(boundaryLeft);
-		physics.addToEnvironmentShapes(boundaryRight);
-		physics.addToEnvironmentShapes(rectPit);
+		physics.movables.add(floatingPlatform);
+		physics.immovables.add(boundaryLeft);
+		physics.immovables.add(boundaryRight);
+		physics.immovables.add(rectPit);
 		
 		
 		gson = new Gson();
@@ -113,7 +116,7 @@ public class Server {
 					characters.set(i, readInputFromClient(i, c, inStream.get(i), out)); // read input from client
 					// UPDATE
 					if (frame % 10000 == 0) { // need the frames or else it will update everything to quickly before you can read input
-						characters.set(i, c.updateCharacter(i, c, out, windowHeight));
+						characters.set(i, c.update());
 						floatingPlatform.update();
 						physics.floatingPlatform = floatingPlatform; // update the platform in the physics component
 						writeMessageToClient(out);

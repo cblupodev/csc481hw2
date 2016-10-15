@@ -1,48 +1,40 @@
 package csc481hw2.section2;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Random;
-
+import csc481hw2.section1.GameObject;
+import csc481hw2.section1.Movable;
+import csc481hw2.section1.Physics;
 import processing.core.PApplet;
 
-public class Character {
+public class Character extends Movable implements GameObject {
 	
 	float originalX;
 	float originalY;
-	float[] shape;
 	int[] color;
 	boolean jumping = false;
 	float jumpingAngle = 180f;
+	int windowHeight;
 	
 	transient Physics physics = new Physics();
-	transient Drawing drawing = new Drawing();
 
-	public Character(float originalX, float originalY, float[] rect, int[] color) {
-		this.originalX = originalX;
-		this.originalY = originalY;
-		this.shape = rect;
-		this.color = color;
-	}
-	
 	public Character(int windowWidth, int windowHeight) {
+		this.type = "rect";
 		this.shape = new float[] {windowWidth * .1f, windowHeight*.9f - 50, 25, 50};
 		this.originalX = shape[0];
 		this.originalY = shape[1];
+		this.windowHeight = windowHeight;
 	}
 	
-	public Character updateCharacter(int i, Character c, PrintWriter writer, int windowHeight) {
+	public Character update() {
 		// redraw the agent if it's in the process of jumping
-		if (c.jumping) {
+		if (jumping) {
 			// used that colliding circles example from processing.org
-			float newY = windowHeight*.9f - 50 + (200 * physics.sinWrap(physics.radiansWrap(c.jumpingAngle)));
-			c.shape[1] = newY;// set a new y position
-			c.jumpingAngle = c.jumpingAngle+3; // increment the jumping angle
-			if (c.jumpingAngle == 360) { // stop jumping if reached the ground
-				c.jumping = false;
-				c.jumpingAngle = 180;
-				c.shape[1] = c.originalY;
+			float newY = windowHeight*.9f - 50 + (200 * physics.sinWrap(physics.radiansWrap(jumpingAngle)));
+			shape[1] = newY;// set a new y position
+			jumpingAngle = jumpingAngle+3; // increment the jumping angle
+			if (jumpingAngle == 360) { // stop jumping if reached the ground
+				jumping = false;
+				jumpingAngle = 180;
+				shape[1] = originalY;
 			}
 		}
 		
@@ -75,21 +67,8 @@ public class Character {
 	
 	public void draw(PApplet p) {
 		setParent(p);
-		drawing.drawFill(this.color);
-		drawing.drawRect(this.shape);
-	}
-	
-	public void setParent(PApplet parent) {
-		if (getDrawing().parent == null) {
-			drawing.parent = parent;
-		}
-	}
-	
-	public Drawing getDrawing() {
-		if (drawing == null) {
-			this.drawing = new Drawing();
-		}
-		return this.drawing;
+		getDrawing().drawFill(this.color);
+		getDrawing().drawRect(this.shape);
 	}
 	
 	public Physics getPhysics() {

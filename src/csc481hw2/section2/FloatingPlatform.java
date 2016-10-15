@@ -1,20 +1,13 @@
 package csc481hw2.section2;
 
+import csc481hw2.section1.GameObject;
+import csc481hw2.section1.Movable;
 import processing.core.PApplet;
 
-public class FloatingPlatform {
+public class FloatingPlatform extends Movable implements GameObject {
 	
-	public float[] shape;
 	public float width;
 	float windowWidth;
-	
-	transient Drawing drawing = new Drawing();
-	
-	public void setParent(PApplet parent) {
-		if (getDrawing().parent == null) {
-			drawing.parent = parent;
-		}
-	}
 	
 	public FloatingPlatform(int windowWidth, int windowHeight) {
 		this.shape = new float[] {-1000, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f};
@@ -22,23 +15,18 @@ public class FloatingPlatform {
 		this.windowWidth = (float) windowWidth;
 	}
 	
-	public void update() {
+	@Override
+	public FloatingPlatform update() {
 		shape[0] -= 1;
 		if (shape[0] + width < 0) {
 			shape[0] = windowWidth;
 		}
+		return this;
 	}
 	
 	public void draw(PApplet p) {
 		setParent(p);
-		drawing.drawRect(shape);
-	}
-	
-	public Drawing getDrawing() {
-		if (drawing == null) {
-			this.drawing = new Drawing();
-		}
-		return this.drawing;
+		getDrawing().drawRect(shape);
 	}
 
 }

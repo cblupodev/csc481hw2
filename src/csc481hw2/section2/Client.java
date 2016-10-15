@@ -15,6 +15,7 @@ import javax.naming.RefAddr;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import csc481hw2.section1.Drawing;
 import processing.core.PApplet;
 
 public class Client extends PApplet {
