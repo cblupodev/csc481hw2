@@ -8,4 +8,5 @@ public class ServerClientMessage {
 	ArrayList<float[]> cShapes = new ArrayList<>();
 	ArrayList<Boolean> cJumping = new ArrayList<>();
 	ArrayList<Float>   cjumpingAngle = new ArrayList<>();
+	ArrayList<int[]>   cColor = new ArrayList<>();
 }

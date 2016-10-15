@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import javax.naming.RefAddr;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -52,10 +54,10 @@ public class Client extends PApplet {
 			socket = new Socket(address, PORT);
 			writer = new PrintWriter(socket.getOutputStream());
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			initializeFinalValues();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		initializeFinalValues();
 		size(windowWidth, windowHeight); // set the window dimensions
 	}
 	
@@ -65,14 +67,29 @@ public class Client extends PApplet {
 	
 	// this should only read the first message the server ever sends
 	private void initializeFinalValues() {
+		boolean initialized = false;
 		try {
-			while(!reader.ready()); // wait until it is ready
-				String i = reader.readLine();
-				ServerClientInitializationMessage initMessage = gson.fromJson(i,ServerClientInitializationMessage);
-				rectFoundation1 = initMessage.rectFoundation1;
-				rectFoundation2 = initMessage.rectFoundation2;
-				windowWidth = initMessage.windowWidth;
-				windowHeight = initMessage.windowHeight;
+			while(!initialized) {
+				if (!reader.ready()) {
+					System.out.println("uninitialized");
+				} else {
+					System.out.println(1);
+					System.out.println(reader.ready());
+					String i = reader.readLine();
+					System.out.println(2);
+					ServerClientInitializationMessage initMessage = gson.fromJson(i,ServerClientInitializationMessage);
+					if (initMessage.rectFoundation1 != null) {
+						rectFoundation1 = initMessage.rectFoundation1;
+						rectFoundation2 = initMessage.rectFoundation2;
+						windowWidth = initMessage.windowWidth;
+						windowHeight = initMessage.windowHeight;
+						initialized = true;
+						writer.println("initialized");
+					} else {
+						//writer.println("uninitialized");
+					}
+				}
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -80,41 +97,41 @@ public class Client extends PApplet {
 
 	int j = 0;
 	FloatingPlatform fp = new FloatingPlatform(windowWidth, windowHeight);
+	Character c;
 	public void draw() {
-		j++;
-		// read the character object from the server. the server does the updating
-		ServerClientMessage message;
-		sendInputToServer();
-		message = readMessageFromServer();
-		
-		// render -->
-		background(0); // reset the background each frame
-		drawing.drawFill(new int[] {221,221,221}); // light gray
-		drawing.drawRect(rectFoundation1);
-		drawing.drawRect(rectFoundation2);
-		
-		drawing.drawFill(new int[] {50,50,50}); // light gray
-		try {
-			fp.shape = message.floatPlatformShapeMessage;
-			fp.draw(this);
-			for (int i = 0; i < message.cShapes.size(); i++){ // draw the characters
-				if (message.cShapes.size() > characters.size()) { // if a new client connected and thus character added, then add to the list
-					Character c = new Character(windowWidth, windowHeight);
-					Random r = new Random();
-					c.color = new int[] {r.nextInt(255), r.nextInt(255), r.nextInt(255)};
-					characters.add(c);
+			j++;
+			// read the character object from the server. the server does the updating
+			ServerClientMessage message;
+			sendInputToServer();
+			message = readMessageFromServer();
+			// render -->
+			background(0); // reset the background each frame
+			drawing.drawFill(new int[] { 221, 221, 221 }); // light gray
+			drawing.drawRect(rectFoundation1);
+			drawing.drawRect(rectFoundation2);
+			drawing.drawFill(new int[] { 50, 50, 50 }); // light gray
+			try {
+				fp.shape = message.floatPlatformShapeMessage;
+				fp.draw(this);
+				for (int i = 0; i < message.cShapes.size(); i++) { // draw the characters
+					if (message.cShapes.size() > characters.size()) { // if a new client connected and thus character added, then add to the list
+						Character c = new Character(windowWidth, windowHeight);
+						characters.add(c);
+					}
+					// update the characters
+					c = characters.get(i);
+					c.shape = message.cShapes.get(i);
+					c.jumping = message.cJumping.get(i);
+					c.jumpingAngle = message.cjumpingAngle.get(i);
+					c.color = message.cColor.get(i);
+					c.draw(this);
 				}
-				// update the characters
-				characters.get(i).shape = message.cShapes.get(i);
-				characters.get(i).jumping = message.cJumping.get(i);
-				characters.get(i).jumpingAngle = message.cjumpingAngle.get(i);
-				characters.get(i).draw(this);
-			}
-			
-			//for (Character c : message.charactersMessage) { // draw the characters
-			//	c.draw(this);
-			//}
-		} catch (NullPointerException e) { }
+
+				//for (Character c : message.charactersMessage) { // draw the characters
+				//	c.draw(this);
+				//}
+			} catch (NullPointerException e) {
+			} 
 	}
 	
 	// send keyboard input to the server so it can update character

@@ -69,31 +69,53 @@ public class Server {
 		
 		// read from clients
 		int frame = -1;
-		PrintWriter out;
+		PrintWriter out = null;
 		Character c;
 		while (true) { // never stop looking
 			frame++;
 			for (int i = 0; i < inStream.size(); i++) { // iterate over the client streams
+				while(outStream.size() != inStream.size()); // busy wait until they are the same size
 				out = outStream.get(i);
+					
 				// initialize the agent if the number of streams and agents aren't the same size
 				if (characters.size() != inStream.size()) { // add a character
 					characters.add(i, new Character(windowWidth, windowHeight));
 					c = characters.get(i);
+					Random r = new Random();
+					c.color = new int[] {r.nextInt(255), r.nextInt(255), r.nextInt(255)};
 					c.physics = this.physics;
 					
-					// send the non changing values to the client
-					ServerClientInitializationMessage scim = new ServerClientInitializationMessage();
-					scim.rectFloat = floatingPlatform.shape;
-					scim.rectFoundation1 = rectFoundation1.shape;
-					scim.rectFoundation2 = rectFoundation2.shape;
-					scim.windowWidth = windowWidth;
-					scim.windowHeight = windowHeight;
-					out.println(gson.toJson(scim, ServerClienInitializationtMessageType));
+					boolean initialized = false;
+					try {
+						while(!initialized) {
+							// send the non changing values to the client
+							ServerClientInitializationMessage scim = new ServerClientInitializationMessage();
+							scim.rectFloat = floatingPlatform.shape;
+							scim.rectFoundation1 = rectFoundation1.shape;
+							scim.rectFoundation2 = rectFoundation2.shape;
+							scim.windowWidth = windowWidth;
+							scim.windowHeight = windowHeight;
+							out.println(gson.toJson(scim, ServerClienInitializationtMessageType));
+							out.flush();
+							System.out.println("init sent");
+							String message = inStream.get(i).readLine();
+							System.out.println(message);
+							if (message.equals("initialized")) {
+								initialized = true;
+							}
+						}
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				} else {
 					c = characters.get(i);
 					characters.set(i, readInputFromClient(i, c, inStream.get(i), out)); // read input from client
+					// UPDATE
 					if (frame % 10000 == 0) { // need the frames or else it will update everything to quickly before you can read input
 						characters.set(i, c.updateCharacter(i, c, out, windowHeight));
+						floatingPlatform.update();
+						physics.floatingPlatform = floatingPlatform; // update the platform in the physics component
 						writeMessageToClient(out);
 					}
 				}
@@ -105,15 +127,18 @@ public class Server {
 	
 	// write a message to the client
 	// mostly including updated info to draw
+	ServerClientMessage message = new ServerClientMessage();
 	private void writeMessageToClient(PrintWriter writer) {
-		ServerClientMessage message = new ServerClientMessage();
-		floatingPlatform.update();
-		physics.floatingPlatform = floatingPlatform; // update the platform in the physics component
+		message.cShapes.clear();
+		message.cJumping.clear();
+		message.cjumpingAngle.clear();
+		message.cColor.clear();
 		message.floatPlatformShapeMessage = floatingPlatform.shape;
 		for (Character c : characters) {
 			message.cShapes.add(c.shape);
 			message.cJumping.add(c.jumping);
 			message.cjumpingAngle.add(c.jumpingAngle);
+			message.cColor.add(c.color);
 		}
 		writer.println(gson.toJson(message, ServerClientMessageType));
 	}
