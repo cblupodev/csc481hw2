@@ -7,14 +7,14 @@ import processing.core.PApplet;
 
 public class Character extends Movable implements GameObject {
 	
-	float originalX;
-	float originalY;
-	int[] color;
-	boolean jumping = false;
-	float jumpingAngle = 180f;
-	int windowHeight;
+	float originalX; // original x position
+	float originalY; // original y position
+	int[] color; // character color
+	boolean jumping = false; //  is it jumping?
+	float jumpingAngle = 180f; //  the jumping angle
+	int windowHeight; //  sketch height
 	
-	Physics physics = new Physics();
+	Physics physics = new Physics(); // keep reference to physics so it can update the character 
 
 	public Character(int windowWidth, int windowHeight) {
 		this.type = "rect";
@@ -37,16 +37,10 @@ public class Character extends Movable implements GameObject {
 				shape[1] = originalY;
 			}
 		}
-		
-		// check if the agent has collided with the boundaries and other objects
-		// if it has then reset to its original position
-//		if (physics.collision(this)) {
-//			setToSpawnPoint();
-//		}
-		
 		return this;	
 	}
 
+	// send keyboard inputs to server
 	public boolean updateInput(String message) {
 		if(message.equals("LEFT")) {
 			shape[0] -= 5; // move x position left

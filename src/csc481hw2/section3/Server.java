@@ -23,19 +23,19 @@ public class Server {
 	public static int windowWidth = 600;
 	public static int windowHeight = 400;
 	
-	public static CopyOnWriteArrayList<Character> characters = new CopyOnWriteArrayList<>();
-	public static CopyOnWriteArrayList<BufferedReader> inStream = new CopyOnWriteArrayList<>();
-	public static CopyOnWriteArrayList<PrintWriter> outStream = new CopyOnWriteArrayList<>();
+	// use the thread safe collections because they are being added and read from different threads
+	public static CopyOnWriteArrayList<Character> characters = new CopyOnWriteArrayList<>(); // list of characters
+	public static CopyOnWriteArrayList<BufferedReader> inStream = new CopyOnWriteArrayList<>(); // list of socket input streams
+	public static CopyOnWriteArrayList<PrintWriter> outStream = new CopyOnWriteArrayList<>(); // list of socket output streams
 	public FloatingPlatform floatingPlatform = new FloatingPlatform(windowWidth, windowHeight);
-	
-	public static ArrayList<Immovable> immovables = new ArrayList<>();
-	public static ArrayList<Movable> movables = new ArrayList<>();
-	
 	private Physics physics;
+	
+	public static ArrayList<Immovable> immovables = new ArrayList<>(); // list of specific objects to collide with
+	public static ArrayList<Movable> movables = new ArrayList<>(); // not used yet
 
-	private Gson gson;
-	private Type ServerClienInitializationtMessageType;
-	private Type ServerClientMessageType;
+	private Gson gson; // google json parser
+	private Type ServerClientMessageType; // type for gson parsing
+	private Type ServerClientInitializationMessageType; // type for json parsing
 	
 	public static void main(String[] args) {
 		Server m = new Server();
@@ -44,7 +44,7 @@ public class Server {
 	}
 	
 	public void run() {
-		// temps
+		// initialize the static objects
 		Immovable rectFoundation1 = new Immovable("rect", new float[] {0, windowHeight*.9f, windowWidth*.75f, windowHeight*.1f});
 		Immovable rectFoundation2 = new Immovable("line", new float[] {windowWidth - (windowWidth*.15f), windowHeight*.9f, windowWidth*.15f, windowHeight*.1f});
 		
@@ -56,6 +56,7 @@ public class Server {
 				windowWidth - (rectFoundation1.shape[2]+rectFoundation2.shape[2]) - 20, 
 				rectFoundation1.shape[3]
 		});
+		
 		immovables.add(boundaryLeft);
 		immovables.add(boundaryRight);
 		immovables.add(rectPit);
@@ -64,7 +65,7 @@ public class Server {
 		physics = new Physics();
 		
 		gson = new Gson();
-		ServerClienInitializationtMessageType = new TypeToken<ServerClientInitializationMessage>() {}.getType();
+		ServerClientInitializationMessageType = new TypeToken<ServerClientInitializationMessage>() {}.getType();
 		ServerClientMessageType = new TypeToken<ServerClientMessage>() {}.getType();
 		
 		// start the thread that accepts incoming connections
@@ -85,6 +86,7 @@ public class Server {
 				if (characters.size() != inStream.size()) { // add a character
 					characters.add(i, new Character(windowWidth, windowHeight));
 					c = characters.get(i);
+					// select random character
 					Random r = new Random();
 					c.color = new int[] {r.nextInt(255), r.nextInt(255), r.nextInt(255)};
 					c.physics = this.physics;
@@ -96,7 +98,7 @@ public class Server {
 					scim.rectFoundation2 = rectFoundation2.shape;
 					scim.windowWidth = windowWidth;
 					scim.windowHeight = windowHeight;
-					out.println(gson.toJson(scim, ServerClienInitializationtMessageType));
+					out.println(gson.toJson(scim, ServerClientInitializationMessageType));
 					out.flush();
 					System.out.println("init sent");
 				} else {
@@ -135,6 +137,7 @@ public class Server {
 		writer.println(gson.toJson(message, ServerClientMessageType));
 	}
 
+	// read keyboard input from client
 	private Character readInputFromClient(int i, Character c, BufferedReader r, PrintWriter writer) {
 		try {
 			if (r.ready()) {

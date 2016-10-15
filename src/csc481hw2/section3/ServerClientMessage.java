@@ -1,7 +1,9 @@
 package csc481hw2.section3;
 
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
+
+// This is used because we haven't implemented an event system yet
+// I'm passing fields because if I send the whole objects it really slows down the message passing
 
 public class ServerClientMessage {
 	float[] floatPlatformShapeMessage;

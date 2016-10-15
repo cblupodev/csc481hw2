@@ -2,16 +2,19 @@ package csc481hw2.section1;
 
 import processing.core.PApplet;
 
-public class Drawing {	// wrapper to easily call rect() from just passing an array
+public class Drawing implements Component {
 	
+	// have a reference to the sketch to draw to
 	public PApplet parent = null;
 	
+	// set the papplet parent
 	public Drawing (PApplet parent) {
 		this.parent = parent;
 	}
 	
 	public Drawing(){}
 	
+	// wrapper to easily call line() from just passing an array
 	public void drawRect(float[] rect) {
 		parent.rect(rect[0], rect[1], rect[2], rect[3]);
 	}

@@ -21,18 +21,22 @@ import processing.core.PApplet;
 
 public class Client extends PApplet {
 	
-	private static final int PORT = 6789;
+	private static final int PORT = 6789; // socket port
 	private Drawing drawing = null;
-	private PrintWriter writer = null;
-	private BufferedReader reader = null;
+	private PrintWriter writer = null; // output stream
+	private BufferedReader reader = null; // input stream
 	private Socket socket = null;
-	private String address = "";
-	private ServerClientMessage lastMessage;
-	private ArrayList<Character> characters = new ArrayList<>(); 
+	private String address = ""; // socket address
+	private ServerClientMessage lastMessage; // remember the last address that was send from the client, so don't get NPE
+	private ArrayList<Character> characters = new ArrayList<>(); // list of characters to display to the screen
+	private int windowWidth;
+	private int windowHeight;
+	private float[] rectFoundation1;
+	private float[] rectFoundation2;
 	
-	private Gson gson;
-	private Type ServerClientMessage;
-	private Type ServerClientInitializationMessage;
+	private Gson gson; // google json parser
+	private Type ServerClientMessageType; // type for gson parsing
+	private Type ServerClientInitializationMessageType; // type for json parsing
 
 	// start the program
 	public static void main(String[] args) {
@@ -41,18 +45,15 @@ public class Client extends PApplet {
 		PApplet.main("csc481hw2.section3.Client");
 	}
 
-	private int windowWidth;
-	private int windowHeight;
-	private float[] rectFoundation1;
-	private float[] rectFoundation2;
 	
 	public void settings() {
 		try {
 			drawing = new Drawing(this);
 			gson  = new Gson();
-	        ServerClientMessage = new TypeToken<ServerClientMessage>() {}.getType();
-	        ServerClientInitializationMessage = new TypeToken<ServerClientInitializationMessage>() {}.getType();
+	        ServerClientMessageType = new TypeToken<ServerClientMessage>() {}.getType();
+	        ServerClientInitializationMessageType = new TypeToken<ServerClientInitializationMessage>() {}.getType();
 			
+	        // create socket and get streams
 			socket = new Socket(address, PORT);
 			writer = new PrintWriter(socket.getOutputStream());
 			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -68,17 +69,19 @@ public class Client extends PApplet {
 	}
 	
 	// this should only read the first message the server ever sends
+	// Initialize all the values that: 
+	// the client uses that are similar to the server
+	// don't change
+	// this is done so I don't have duplicated code on the server and client
 	private void initializeFinalValues() {
 		String i = "";
 		try {
-				System.out.println("is reader ready?   " + reader.ready());
 				i = reader.readLine();
-				ServerClientInitializationMessage initMessage = gson.fromJson(i,ServerClientInitializationMessage);
+				ServerClientInitializationMessage initMessage = gson.fromJson(i,ServerClientInitializationMessageType);
 				rectFoundation1 = initMessage.rectFoundation1;
 				rectFoundation2 = initMessage.rectFoundation2;
 				windowWidth = initMessage.windowWidth;
 				windowHeight = initMessage.windowHeight;
-				writer.println("initialized");
 		} catch (JsonSyntaxException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -86,11 +89,9 @@ public class Client extends PApplet {
 		}
 	}
 
-	int j = 0;
-	FloatingPlatform fp = new FloatingPlatform(windowWidth, windowHeight);
-	Character c;
+	FloatingPlatform fp = new FloatingPlatform(windowWidth, windowHeight); // keep reference so not allocating memory each time
+	Character c; // keep reference so not allocating memory each time
 	public void draw() {
-			j++;
 			// read the character object from the server. the server does the updating
 			ServerClientMessage message;
 			sendInputToServer();
@@ -117,12 +118,7 @@ public class Client extends PApplet {
 					c.color = message.cColor.get(i);
 					c.draw(this);
 				}
-
-				//for (Character c : message.charactersMessage) { // draw the characters
-				//	c.draw(this);
-				//}
-			} catch (NullPointerException e) {
-			} 
+			} catch (NullPointerException e) { }
 	}
 	
 	// send keyboard input to the server so it can update character
@@ -146,8 +142,7 @@ public class Client extends PApplet {
 		try {
 			if (reader.ready()) {
 				String i = reader.readLine();
-				ServerClientMessage message = gson.fromJson(i,ServerClientMessage);
-				//System.out.println(i);
+				ServerClientMessage message = gson.fromJson(i,ServerClientMessageType);
 				lastMessage = message;
 				return message;
 			}

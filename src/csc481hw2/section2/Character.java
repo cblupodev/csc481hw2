@@ -25,17 +25,6 @@ public class Character {
 		this.setColor(new int[] {255,255,255}); //white
 	}
 
-/*	// convert the object to json so it can send over the object stream
-	// TODO
-	private Object writeReplace() throws ObjectStreamException {
-        return gson.toJson(this, type);
-	}
-	
-	// TODO
-	private Object readResolve() throws ObjectStreamException {
-		return "";
-	}*/
-
 	public float[] getShape() {
 		return shape;
 	}

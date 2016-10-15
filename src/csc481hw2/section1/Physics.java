@@ -1,7 +1,5 @@
 package csc481hw2.section1;
 
-import java.util.ArrayList;
-
 import csc481hw2.section3.Character;
 import csc481hw2.section3.FloatingPlatform;
 import csc481hw2.section3.Server;
@@ -9,6 +7,7 @@ import processing.core.PApplet;
 
 public class Physics extends PApplet implements Component {
 	
+	// reference the floating platform
 	public FloatingPlatform floatingPlatform;
 	
 	public float sinWrap(float f) {
@@ -19,13 +18,14 @@ public class Physics extends PApplet implements Component {
 		return radians(f);
 	}
 	
+	// detect collisions for all the characters
 	public void collision() {
 		try {
 			for (int j = 0; j < Server.characters.size(); j++) {
 				Character c = Server.characters.get(j);
 				// check immovables
 				for (int i = 0; i < Server.immovables.size(); i++) {
-					if (c.type.equals("rect")) {
+					if (c.type.equals("rect")) { // if its a rectangle
 						if (Server.immovables.get(i).type.equals("rect")) {
 							if (rectRectWrap(Server.immovables.get(i).shape, c.shape)) {
 								c.setToSpawnPoint();
@@ -37,18 +37,6 @@ public class Physics extends PApplet implements Component {
 						}
 					}
 				}
-				// check movables
-				//			for (int i = 0; i < Server.movables.size(); i++) {
-				//				if (obj.type.equals("rect")) {
-				//					if (Server.movables.get(i).type.equals("rect")) {
-				//						if (rectRectWrap(Server.immovables.get(i).shape, obj.shape)) {
-				//							obj.setToSpawnPoint();
-				//							return true;
-				//						}
-				//					}
-				//					
-				//				}
-				//			}
 				if (rectRectWrap(c.shape, floatingPlatform.shape)) {
 					c.setToSpawnPoint();
 				} 
