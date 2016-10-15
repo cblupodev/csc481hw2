@@ -1,4 +1,4 @@
-package csc481hw2.section2;
+package csc481hw2.section3;
 
 import csc481hw2.section1.GameObject;
 import csc481hw2.section1.Movable;

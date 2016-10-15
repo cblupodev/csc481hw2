@@ -1,87 +1,95 @@
 package csc481hw2.section2;
 
-import csc481hw2.section1.GameObject;
-import csc481hw2.section1.Movable;
-import csc481hw2.section1.Physics;
-import processing.core.PApplet;
-
-public class Character extends Movable implements GameObject {
+public class Character {
 	
-	float originalX;
-	float originalY;
-	int[] color;
-	boolean jumping = false;
-	float jumpingAngle = 180f;
-	int windowHeight;
+	private float originalX;
+	private float originalY;
+	private float[] shape;
+	private int[] color;
+	private boolean keyPressed = false;
+	private boolean jumping = false;
+	private float jumpingAngle = 180f;
 	
-	Physics physics = new Physics();
-
+	public Character(float originalX, float originalY, float[] rect, int[] color) {
+		this.setOriginalX(originalX);
+		this.setOriginalY(originalY);
+		this.setShape(rect);
+		this.setColor(color);
+	}
+	
 	public Character(int windowWidth, int windowHeight) {
-		this.type = "rect";
-		this.shape = new float[] {windowWidth * .1f, windowHeight*.9f - 50, 25, 50};
-		this.originalX = shape[0];
-		this.originalY = shape[1];
-		this.windowHeight = windowHeight;
-	}
-	
-	public Character update() {
-		// redraw the agent if it's in the process of jumping
-		if (jumping) {
-			// used that colliding circles example from processing.org
-			float newY = windowHeight*.9f - 50 + (200 * physics.sinWrap(physics.radiansWrap(jumpingAngle)));
-			shape[1] = newY;// set a new y position
-			jumpingAngle = jumpingAngle+3; // increment the jumping angle
-			if (jumpingAngle == 360) { // stop jumping if reached the ground
-				jumping = false;
-				jumpingAngle = 180;
-				shape[1] = originalY;
-			}
-		}
-		
-		// check if the agent has collided with the boundaries and other objects
-		// if it has then reset to its original position
-//		if (physics.collision(this)) {
-//			setToSpawnPoint();
-//		}
-		
-		return this;	
+		//this.setShape(new float[] {windowWidth * .7f, windowHeight*.7f, windowWidth * .2f, windowHeight*.025f});
+		this.setShape(new float[] {windowWidth * .1f, windowHeight*.9f - 50, 25, 50});
+		this.setOriginalX(getShape()[0]);
+		this.setOriginalY(getShape()[1]);
+		this.setColor(new int[] {255,255,255}); //white
 	}
 
-	public boolean updateInput(String message) {
-		if(message.equals("LEFT")) {
-			shape[0] -= 5; // move x position left
-			return true;
-		}
-		if (message.equals("RIGHT")) {
-			shape[0] += 5; // move x position right
-			return true;
-		}
-		if (message.equals("SPACE")) {
-			if (jumping == false) {
-				jumping = true;
-			}
-			return true;
-		}
-		return false;
+/*	// convert the object to json so it can send over the object stream
+	// TODO
+	private Object writeReplace() throws ObjectStreamException {
+        return gson.toJson(this, type);
 	}
 	
-	public void draw(PApplet p) {
-		setParent(p);
-		getDrawing().drawFill(this.color);
-		getDrawing().drawRect(this.shape);
+	// TODO
+	private Object readResolve() throws ObjectStreamException {
+		return "";
+	}*/
+
+	public float[] getShape() {
+		return shape;
 	}
-	
-	public Physics getPhysics() {
-		if (physics == null) {
-			this.physics = new Physics();
-		}
-		return this.physics;
+
+	public void setShape(float[] shape) {
+		this.shape = shape;
 	}
-	
-	// set a character to its spawn position and state
-	public void setToSpawnPoint() {
-		jumping = false;
-		shape[0] = originalX;
-		shape[1] = originalY;
+
+	public float getOriginalX() {
+		return originalX;
 	}
+
+	public void setOriginalX(float originalX) {
+		this.originalX = originalX;
+	}
+
+	public float getOriginalY() {
+		return originalY;
+	}
+
+	public void setOriginalY(float originalY) {
+		this.originalY = originalY;
+	}
+
+	public int[] getColor() {
+		return color;
+	}
+
+	public void setColor(int[] color) {
+		this.color = color;
+	}
+
+	public boolean isKeyPressed() {
+		return keyPressed;
+	}
+
+	public void setKeyPressed(boolean keyPressed) {
+		this.keyPressed = keyPressed;
+	}
+
+	public boolean isJumping() {
+		return jumping;
+	}
+
+	public void setJumping(boolean jumping) {
+		this.jumping = jumping;
+	}
+
+	public float getJumpingAngle() {
+		return jumpingAngle;
+	}
+
+	public void setJumpingAngle(float jumpingAngle) {
+		this.jumpingAngle = jumpingAngle;
+	}
+
 }

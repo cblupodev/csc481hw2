@@ -2,9 +2,9 @@ package csc481hw2.section1;
 
 import java.util.ArrayList;
 
-import csc481hw2.section2.Character;
-import csc481hw2.section2.FloatingPlatform;
-import csc481hw2.section2.Server;
+import csc481hw2.section3.Character;
+import csc481hw2.section3.FloatingPlatform;
+import csc481hw2.section3.Server;
 import processing.core.PApplet;
 
 public class Physics extends PApplet implements Component {

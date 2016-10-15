@@ -1,4 +1,4 @@
-package csc481hw2.section2;
+package csc481hw2.section3;
 
 public class ServerClientInitializationMessage {
 
