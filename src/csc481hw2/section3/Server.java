@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import csc481hw2.section1.GameObject;
 import csc481hw2.section1.Immovable;
 import csc481hw2.section1.Movable;
 import csc481hw2.section1.Physics;
@@ -18,7 +19,7 @@ import java.lang.reflect.Type;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class Server {
+public class Server implements GameObject {
 	
 	public static int windowWidth = 600;
 	public static int windowHeight = 400;

@@ -12,3 +12,7 @@ I included a screencast of the section3 code running in demo.mp4
    
 # Section 3
 - Exact same instructions as Section to except run Client3.jar
+- Every once in a while when you run the third Client3.jar application it will crap out and hang. 
+  I know the line that causes the problem but I can't figure out why that is happening. 
+  If you kill all applications and run everything again (including the server)
+  eventually the third  Client3.jar will work 

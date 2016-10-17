@@ -17,9 +17,10 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import csc481hw2.section1.Drawing;
+import csc481hw2.section1.GameObject;
 import processing.core.PApplet;
 
-public class Client extends PApplet {
+public class Client extends PApplet implements GameObject {
 	
 	private static final int PORT = 6789; // socket port
 	private Drawing drawing = null;
