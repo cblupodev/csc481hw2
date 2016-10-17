@@ -155,6 +155,5 @@ public class Server implements GameObject {
 		}
 		
 		return c;
-		
 	}
 }

@@ -63,8 +63,6 @@ public class Client extends PApplet {
 	}
 	
 	public void draw() {
-		// TODO get inputs and send them to the server
-		// TODO read and write to the server
 		// read the character object from the server. the server does the updating
 		sendInputToServer();
 		CopyOnWriteArrayList<Character> c = readCharactersFromServer();
