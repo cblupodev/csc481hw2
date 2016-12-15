@@ -1,3 +1,6 @@
+Link to project description [assignment requirements.pdf - github.com](https://github.com/cblupodev/csc481hw2/blob/master/assignment%20requirements.pdf)
+
+
 I included a screencast of the section3 code running in demo.mp4
 
 - These instructions are for Windows
